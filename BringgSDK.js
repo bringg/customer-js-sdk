@@ -364,11 +364,10 @@ var BringgSDK = (function () {
   /**
    *
    */
-  module.submitTip = function () {
+  module.submitTip = function (tip) {
     var canvas = document.getElementById('newSignature');// save canvas image as data url (png format by default)
     var blob = dataURItoBlob(canvas.toDataURL('image/jpg'));
     var fileName = guid() + '.jpg';
-    var tip = window.tipAmount;
     $.post(configuration.tipConfiguration.tipSignatureUploadPath, {
       amount: tip,
       signatureImage: fileName,
