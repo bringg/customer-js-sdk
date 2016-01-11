@@ -1,0 +1,7 @@
+{
+  "name": "bringg-sdk",
+  "version": "1.0.1",
+  "dependencies": {
+    "socket.io-client": "git@github.com:liorsion/socket.io-client.git#0cd60822b6aed9fc4538009b52b0b9d0ab1c2184"
+  }
+}
