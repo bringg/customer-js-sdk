@@ -18,24 +18,52 @@ if share uuid is provided, after fetching the shared-location config it will con
 
 
 ##### connect ([customerAccessToken],[onConnectCb],[onDisconnectCb])
-connect to the realtime
-all params are optional since you can independently set the onConnect/onDisconnect via setter function and the access token is optional also at this point.
+connect to the realtime.
+
+connection callbacks are optional since you can independently set the onConnect/onDisconnect via setter functions.
+
+the access token is also optional at this point.
 
 
 ##### disconnect()
-closes the real-time connection, stop the polling etc.
+closes the real-time connection.
 
 
 ##### watchOrder(params, callback)
 start tracking an order
+
 either user pass all the relevant params in initialize and it will be called automatically or he should call this method when he desires.
 
-note: after calling this method there is no need to call the watchDriver and watchWaypoint as the sdk will figure by himself when it can do so.
+`params`:
+```
+{
+  order_uuid: "",
+  share_uuid: "",
+  [way_point_id: ""]
+}
+```
+###### note: after calling this method there is no need to call the watchDriver and watchWaypoint as the sdk will figure by himself when it can do so.
 
 
 ##### watchDriver(params, callback)
 
+`params`:
+```
+{
+  driver_uuid: "",
+  share_uuid: ""
+}
+```
+
 ##### watchWayPoint(params, callback)
+
+`params`:
+```
+{
+  order_uuid: "",
+  way_point_id: ""
+}
+```
 
 
 ### additional optional actions
@@ -67,13 +95,19 @@ note: after calling this method there is no need to call the watchDriver and wat
 ### optional setters
 
 ##### setConfiguration(sharedLocationConfiguration)
+
 ##### setDestination(lat, lng)
+set the destination for the order (i.e the customer's location).
+###### the destination is needed for eta calculations.
+
 ##### setETAMethod(newETAMethod)
 
 
 ### other
 
 ##### getLastKnownETA()
+##### setAutoWatchDriver(enable)
+##### setAutoWatchWayPoint(enable)
 
 
 ## examples
