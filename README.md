@@ -12,9 +12,19 @@ bower install bringg-js-sdk
 ### main methods
 
 ##### initializaBringg (params, [initDoneCb])
-this is an optional setup function. params can be used to pass credentials (like dev_access_token and customer_access_token) and other like share_uuid if client already holds a reference to it and compatibility with html customer_app.
+optional setup function. 
+params can be used to pass credentials and share uuid if you already hold a reference to it.
 
-if share uuid is provided, after fetching the shared-location config it will connect the realtime, polling etc.
+`params`:
+```
+{
+  customer_access_token: ""
+  [optional]share_uuid: "",
+  [optional]order_uuid: "",
+}
+```
+
+`if params include share_uuid, after fetching the shared-location config the sdk will automatically connect the realtime`
 
 `if the params include the necessary data for watchOrder, it will be called automatically when realtime connection is established.`
 
@@ -100,7 +110,7 @@ start tracking an order
 
 ##### setDestination(lat, lng)
 set the destination for the order (i.e the customer's location).
-###### the destination is needed for eta calculations.
+`the destination is needed for eta calculations.`
 
 ##### setETAMethod(newETAMethod)
 
