@@ -122,6 +122,7 @@ set the destination for the order (i.e the customer's location).
 ### other
 
 ##### getLastKnownETA()
+you can set use the setETAUpdateCb to receive eta updates instead.
 
 ##### setAutoWatchDriver(enable)
 by default the sdk will start watching driver when driver location should be availble.
