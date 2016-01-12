@@ -450,6 +450,14 @@ var BringgSDK = (function () {
     }
   };
 
+  module.setAutoWatchDriver = function(enable){
+    shouldAutoWatchDriver = enable
+  };
+
+  module.setAutoWatchWayPoint = function(enable){
+    shouldAutoWatchWayPoint = enable
+  };
+
   //========================================================================
   //
   // PRIVATE
