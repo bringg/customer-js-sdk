@@ -86,17 +86,22 @@ start tracking an order
 
 
 ### additional optional actions
+these actions use the tokens and urls aquired by the shared_location configuration.
 
 ##### submitRating(rating)
+submit rating from the customer.
 
 ##### submitRatingReason(ratingReasonId)
+submit rating reason after the customer rated (for example you can prompt him for his reason if he rated below 2/5).
 
-##### submitNote(note)
+##### submitNote(note).
+send a note by the customer.
 
 ##### submitLocation(position, successCb, failureCb)
+send the customer current location.
 
 ##### submitTip(tip)
-
+send the tip amount that the customer decides to add.
 
 ### setting callbacks
 
