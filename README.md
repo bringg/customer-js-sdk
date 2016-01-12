@@ -94,10 +94,14 @@ start tracking an order
 ### setting callbacks
 
 ##### setConnectionCallbacks(onConnectCb, onDisconnectCb)
+you can pass the callbacks to the connect() method instead.
 
-##### setOrderUpdateCb
+##### setOrderUpdateCb(cb)
+you can pass the callback to the watchOrder() method instead.
 
-##### setLocationUpdateCb
+##### setLocationUpdateCb(cb)
+you can pass the callback to the watchDriver instead.
+note that if you instead let the sdk call it for you, you must pass the callback in order to receive location updates.
 
 ##### setETAUpdateCb(cb)
 
