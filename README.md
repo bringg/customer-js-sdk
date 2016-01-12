@@ -122,11 +122,13 @@ note that if you instead let the sdk call it for you, you must pass the callback
 
 ### optional setters
 
-##### setConfiguration(sharedLocationConfiguration)
-
 ##### setDestination(lat, lng)
 set the destination for the order (i.e the customer's location).
 `the destination is needed for eta calculations.`
+
+##### setConfiguration(sharedLocationConfiguration)
+usually once the sdk is provided with a share_uuid it obtains the necessary configuration for itself.
+if however you do not have a share_uuid but have the configuration ou can set it yourself manually.
 
 ##### setETAMethod(newETAMethod)
 
