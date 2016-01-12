@@ -16,6 +16,8 @@ this is an optional setup function. params can be used to pass credentials (like
 
 if share uuid is provided, after fetching the shared-location config it will connect the realtime, polling etc.
 
+`if the params include the necessary data for watchOrder, it will be called automatically when realtime connection is established.`
+
 
 ##### connect ([customerAccessToken],[onConnectCb],[onDisconnectCb])
 connect to the realtime.
@@ -32,17 +34,17 @@ closes the real-time connection.
 ##### watchOrder(params, callback)
 start tracking an order
 
-either user pass all the relevant params in initialize and it will be called automatically or he should call this method when he desires.
-
 `params`:
 ```
 {
   order_uuid: "",
   share_uuid: "",
-  [way_point_id: ""]
+  [optional]way_point_id: ""
 }
 ```
-###### note: after calling this method there is no need to call the watchDriver and watchWaypoint as the sdk will figure by himself when it can do so.
+
+`after calling this method there is no need to call the watchDriver and watchWaypoint as the sdk will figure by himself when it can do so. see setAutoWatchDriver and setAutoWatchWayPoint if you want to call them manually.`
+
 
 
 ##### watchDriver(params, callback)
