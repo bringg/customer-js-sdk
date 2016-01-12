@@ -18,6 +18,13 @@ var BringgSDK = (function () {
   var ORDER_UPDATE_EVENT = 'order update';
   var ORDER_DONE_EVENT = 'order done';
 
+  var REAL_TIME_OPTIONS = {
+    'END_POINT' : 'https://realtime2-api.bringg.com/',
+    'SECURED_SOCKETS': true,
+    'SOCKET_WEBSOCKET_PORT': 443,
+    'SOCKET_XHR_PORT': 8443
+  };
+
   //========================================================================
   //
   // PROPERTIES
@@ -464,6 +471,23 @@ var BringgSDK = (function () {
   //
   //========================================================================
 
+  function getRealTimeEndPoint(){
+    return window.MONITOR_END_POINT ? window.MONITOR_END_POINT : REAL_TIME_OPTIONS.END_POINT;
+  }
+
+  function getWebSocketPort(){
+    return window.SOCKET_WEBSOCKET_PORT ? window.SOCKET_WEBSOCKET_PORT : REAL_TIME_OPTIONS.SOCKET_WEBSOCKET_PORT;
+  }
+
+  function getXHRPort(){
+    return window.SOCKET_XHR_PORT ? window.SOCKET_XHR_PORT : REAL_TIME_OPTIONS.SOCKET_XHR_PORT;
+  }
+
+  function getSecuredSocketSetup(){
+    return window.SECURED_SOCKETS ? window.SECURED_SOCKETS : REAL_TIME_OPTIONS.SECURED_SOCKETS;
+  }
+
+
   /**
    * connect the socket and registers all connection listeners.
    * if a previous connection exists it closes it first.
@@ -472,10 +496,10 @@ var BringgSDK = (function () {
   module._connectSocket = function() {
     module._closeSocketConnection();
 
-    module._socket = io(window.MONITOR_END_POINT, {
+    module._socket = io(getRealTimeEndPoint(), {
       transports: [
-        {name: 'websocket', options: {port: window.SOCKET_WEBSOCKET_PORT, secure: window.SECURED_SOCKETS}},
-        {name: 'polling', options: {port: window.SOCKET_XHR_PORT, secure: window.SECURED_SOCKETS}}
+        {name: 'websocket', options: {port: getWebSocketPort(), secure: getSecuredSocketSetup()}},
+        {name: 'polling', options: {port: getXHRPort(), secure: getSecuredSocketSetup()}}
       ]
     });
 
@@ -728,13 +752,13 @@ var BringgSDK = (function () {
 
   function getShareConfig(uuid, callback, errorCallback){
     console.log('Getting shared config for uuid: ' + uuid);
-    $.getJSON(window.MONITOR_END_POINT + 'shared/' + uuid + '?full=true', callback).error(errorCallback);
+    $.getJSON(getRealTimeEndPoint() + 'shared/' + uuid + '?full=true', callback).error(errorCallback);
   }
 
   function getSharedLocation(uuid){
     console.log('Getting location via REST for uuid: ' + uuid);
 
-    $.getJSON(window.MONITOR_END_POINT + 'shared/' + uuid + '/location/', function (result) {
+    $.getJSON(getRealTimeEndPoint() + 'shared/' + uuid + '/location/', function (result) {
       console.log('Rest location update: ' + JSON.stringify(result));
       if ((result.success || result.status === 'ok') && result.current_lat && result.current_lng) {
         var locationData = {
@@ -750,7 +774,7 @@ var BringgSDK = (function () {
 
   function getOrderViaRest(orderUuid, shareUuid){
     console.log('Getting order via REST with share uuid: ' + shareUuid);
-    $.getJSON(window.MONITOR_END_POINT + 'watch/shared/' + shareUuid + '?order_uuid=' + orderUuid, function (result) {
+    $.getJSON(getRealTimeEndPoint() + 'watch/shared/' + shareUuid + '?order_uuid=' + orderUuid, function (result) {
       console.log('Rest order update: ' + JSON.stringify(result));
       if (result.success && result.order_update){
         module._onOrderUpdate(result.order_update);
@@ -762,7 +786,7 @@ var BringgSDK = (function () {
 
   function createShareForOrderViaRest(orderUuid){
     console.log('creating share via REST for order_uuid: ' + orderUuid);
-    $.getJSON(window.MONITOR_END_POINT + 'shared/orders?order_uuid=' + orderUuid, function (result) {
+    $.getJSON(getRealTimeEndPoint() + 'shared/orders?order_uuid=' + orderUuid, function (result) {
       console.log('Rest order update: ' + JSON.stringify(result));
       if (result.success && result.order_update){
         module._onOrderUpdate(result.order_update);
