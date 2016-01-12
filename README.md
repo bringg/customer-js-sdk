@@ -16,11 +16,11 @@ this is an optional setup function. params can be used to pass credentials (like
 
 if share uuid is provided, after fetching the shared-location config it will connect the realtime, polling etc.
 
-##### connect ([customerAccessToken],[onConnectCb],[onDisconnectCb])
+###### connect ([customerAccessToken],[onConnectCb],[onDisconnectCb])
 connect to the realtime
 all params are optional since you can independently set the onConnect/onDisconnect via setter function and the access token is optional also at this point.
 
-##### disconnect()
+###### disconnect()
 closes the real-time connection, stop the polling etc.
 
 ##### watchOrder(params, callback)
