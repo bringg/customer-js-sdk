@@ -3,8 +3,15 @@
 
 ## getting started
 
-### install
-bower install bringg-js-sdk
+#### install
+`bower install bringg-js-sdk`
+
+#### dependencies
+please add the following to your index.html
+```
+<script src="bower_components/socket.io-client/socket.io.js"></script>
+<script src="bower_components/bringg-sdk/BringgSDK.js"></script>
+```
 
 
 ## api
