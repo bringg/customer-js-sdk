@@ -1,12 +1,12 @@
 # customer-js-sdk
 
 
-## getting started
+## Getting started
 
-#### install
+#### Install
 `bower install bringg-js-sdk`
 
-#### dependencies
+#### Dependencies
 please add the following to your index.html
 ```
 <script src="bower_components/socket.io-client/socket.io.js"></script>
@@ -14,9 +14,9 @@ please add the following to your index.html
 ```
 
 
-## api
+## API
 
-### main methods
+### Main methods
 
 ##### initializaBringg (params, [initDoneCb])
 optional setup function. 
