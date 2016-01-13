@@ -7,7 +7,7 @@
 `bower install bringg-js-sdk`
 
 #### Dependencies
-please add the following to your index.html
+add the following to your index.html
 ```
 <script src="bower_components/socket.io-client/socket.io.js"></script>
 <script src="bower_components/bringg-sdk/BringgSDK.js"></script>
@@ -177,8 +177,8 @@ function onTaskRatedCb(){
 function onConnect(){
    BringgSDK.watchOrder({
           order_uuid: my_order_uuid,
-          way_point_id: my_way_point_id,
-          share_uuid: my_share_uuid
+          way_point_id: my_way_point_id,  
+          share_uuid: my_share_uuid       // can be null if you connected with the customer_access_token..
         }, function (result) {
           if (result && result.shared_location) {
             // here we can do something with result.shared_location like storing it
