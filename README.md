@@ -85,7 +85,7 @@ start tracking an order
 ```
 
 
-### additional optional actions
+### Additional optional actions
 these actions use the tokens and urls aquired by the shared_location configuration.
 
 ##### submitRating(rating)
@@ -147,8 +147,8 @@ by default the sdk will NOT watch state change of way points.
 you can turn this on/off if using enable=true/false respectively.
 
 
-## examples
-##### this shows how to watch order manually
+## Examples
+##### This shows how to watch order manually
 ```
 var customer_access_token = 'YOUR_CUSTOMER_ACCESS_TOKEN'; // may be null 
 var my_order_uuid = 'SOME_UUID_HERE';
