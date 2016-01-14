@@ -195,29 +195,41 @@ var BringgSDK = (function () {
     module._socket.emit('watch order', params, function(result){
       module._watchOrderCb(result, callback);
 
+      // if we succeeded then use the watch params to fill missing config params
       fillConfig(params);
-      if (!watchingWayPoint && shouldAutoWatchWayPoint && configuration.way_point_id && configuration.order_uuid){
-        module.watchWayPoint({order_uuid: configuration.order_uuid, way_point_id : configuration.way_point_id});
-      }
 
+      if (!configuration.expired) {
+        if (!watchingWayPoint && shouldAutoWatchWayPoint && configuration.way_point_id && configuration.order_uuid) {
+          module.watchWayPoint({order_uuid: configuration.order_uuid, way_point_id: configuration.way_point_id});
+        }
+      }
     });
   };
 
   module._watchOrderCb = function(result, callback){
-    if (result && result.success) {
+    if (result) {
+      if (result.success){
+        watchingOrder = true;
 
-      watchingOrder = true;
+        // cache the params returned from the watch
+        if (result.shared_location) {
+          module.setConfiguration(result.shared_location);
+          configuration.share_uuid = result.shared_location.uuid;
+          module._onNewConfiguration(result.shared_location);
+        }
 
-      // cache the params returned from the watch
-      if (result.shared_location) {
-        module.setConfiguration(result.shared_location);
-        configuration.share_uuid = result.shared_location.uuid;
-        module._onNewConfiguration(result.shared_location);
+        if (callback) {
+          callback(result);
+        }
       }
 
-      if (callback) {
-        callback(result)
+      if (result.expired) {
+        console.log('share expired');
+        configuration.expired = true;
       }
+
+    } else {
+      console.log('watch order: no result');
     }
   };
 
@@ -311,6 +323,9 @@ var BringgSDK = (function () {
       }
     } else {
       console.log('submit rating - no configuration');
+      if (callbacks.taskRatedCb) {
+        callbacks.taskRatedCb({success: false, message: 'invalid configuration'});
+      }
     }
   };
 
