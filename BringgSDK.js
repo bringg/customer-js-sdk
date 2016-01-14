@@ -117,7 +117,7 @@ var BringgSDK = (function () {
 
         var afterCall = new Date() - beforeCall;
         configuration = updatedConfiguration;
-        configuration.share_uuid = share_uuid;
+        configuration.share_uuid = shareUuid;
 
         module._onNewConfiguration(configuration);
 
@@ -432,6 +432,17 @@ var BringgSDK = (function () {
     return lastEta;
   };
 
+  module.getLastETAUpdateTime = function() {
+    return lastETAUpdate;
+  };
+
+  module.getETAOrigin = function() {
+    return etaFromServer ? 'server' : 'client';
+  };
+
+  module.getDriverActivity = function() {
+    return driverActivity;
+  };
 
   module.setOrderUpdateCb = function(cb){
     callbacks.orderUpdateCb = cb;
@@ -1237,16 +1248,6 @@ var BringgSDK = (function () {
   function _isSafari() {
     var ua = navigator.userAgent.toLowerCase();
     return (ua.indexOf('safari') !== -1 && !ua.indexOf('chrome') > -1);
-  }
-
-  function supportsStorage() {
-    try {
-      localStorage.setItem('test', 'test');
-      localStorage.removeItem('test');
-      return 'localStorage' in window && window.localStorage !== null;
-    } catch (e) {
-      return false;
-    }
   }
 
   function dataURItoBlob(dataURI) {
