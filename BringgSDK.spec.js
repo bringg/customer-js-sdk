@@ -57,4 +57,56 @@ describe('BringgSDK', function () {
     expect(socket.disconnect).toHaveBeenCalled();
     expect(BringgSDK._socket).toBeNull();
   });
+
+  it('rate with invalid config', function(){
+    var callback = jasmine.createSpy('callback');
+    BringgSDK.setEventCallback({
+      'taskRatedCb': callback
+    });
+    var configuration = null;
+    BringgSDK.setConfiguration(configuration);
+    BringgSDK.submitRating(faker.random.number());
+    expect(callback).toHaveBeenCalledWith({success: false, message: 'invalid configuration'});
+
+    configuration = {};
+    BringgSDK.setConfiguration(configuration);
+    BringgSDK.submitRating(faker.random.number());
+    expect(callback).toHaveBeenCalledWith({success: false, message: 'no url provided for rating'});
+  });
+
+  it('rate error from server', function(){
+    var callback = jasmine.createSpy('callback');
+    BringgSDK.setEventCallback({
+      'taskRatedCb': callback
+    });
+
+    window.$ = {post:function(){
+     return {fail: function(){
+       callback({success: false, message: 'Unknown error while rating'});
+     }}
+    }};
+
+    var configuration = {rating_url: faker.internet.url(), rating_token : faker.internet.password()};
+    BringgSDK.setConfiguration(configuration);
+    BringgSDK.submitRating(faker.random.number());
+    expect(callback).toHaveBeenCalledWith({success: false, message: 'Unknown error while rating'});
+  });
+
+  it('rate success from server', function(){
+    var response = {success : true};
+    var callback = jasmine.createSpy('callback');
+    BringgSDK.setEventCallback({
+      'taskRatedCb': callback
+    });
+
+    window.$ = {post : function(url, params, successCallback){
+      callback(response);
+      return{fail : function(){}};
+    }};
+
+    var configuration = {rating_url: faker.internet.url(), rating_token : faker.internet.password()};
+    BringgSDK.setConfiguration(configuration);
+    BringgSDK.submitRating(faker.random.number());
+    expect(callback).toHaveBeenCalledWith({success: true});
+  });
 });

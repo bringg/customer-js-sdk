@@ -305,7 +305,7 @@ var BringgSDK = (function () {
 
   module.submitRating = function (rating) {
     if (configuration) {
-      if (configuration.rating_url) {
+      if (configuration.rating_url && configuration.rating_token) {
         $.post(configuration.rating_url, {
           rating: rating,
           token: configuration.rating_token

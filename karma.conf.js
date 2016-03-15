@@ -16,7 +16,10 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
       'BringgSDK.js',
-      'BringgSDK.spec.js'
+      'BringgSDK.spec.js',
+
+      'bower_components/socket.io-client/socket.io.js',
+      'bower_components/faker.js/build/build/faker.js'
     ],
 
 
