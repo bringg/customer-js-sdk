@@ -1,14 +1,6 @@
 'use strict';
 
 describe('BringgSDK', function () {
-  var __window__;
-
-  beforeEach(module('cocaColaCordovaApp'));
-
-  beforeEach(inject(function ($window) {
-    __window__ = $window;
-  }));
-
   it('check the API of the service', function () {
     expect(BringgSDK._socket).toBeNull();
     expect(BringgSDK.initializeBringg).toBeDefined();
@@ -65,6 +57,4 @@ describe('BringgSDK', function () {
     expect(socket.disconnect).toHaveBeenCalled();
     expect(BringgSDK._socket).toBeNull();
   });
-
-
 });
