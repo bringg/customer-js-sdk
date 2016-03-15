@@ -71,7 +71,17 @@ describe('BringgSDK', function () {
     configuration = {};
     BringgSDK.setConfiguration(configuration);
     BringgSDK.submitRating(faker.random.number());
-    expect(callback).toHaveBeenCalledWith({success: false, message: 'no url provided for rating'});
+    expect(callback).toHaveBeenCalledWith({success: false, message: 'no url or token provided for rating'});
+
+    configuration = {rating_url: faker.internet.url()};
+    BringgSDK.setConfiguration(configuration);
+    BringgSDK.submitRating(faker.random.number());
+    expect(callback).toHaveBeenCalledWith({success: false, message: 'no url or token provided for rating'});
+
+    configuration = {rating_token : faker.internet.password()};
+    BringgSDK.setConfiguration(configuration);
+    BringgSDK.submitRating(faker.random.number());
+    expect(callback).toHaveBeenCalledWith({success: false, message: 'no url or token provided for rating'});
   });
 
   it('rate error from server', function(){

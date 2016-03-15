@@ -320,9 +320,9 @@ var BringgSDK = (function () {
           }
         });
       } else {
-        console.log('submit rating - no url provided for rating');
+        console.log('submit rating - no url or token provided for rating');
         if (callbacks.taskRatedCb) {
-          callbacks.taskRatedCb({success: false, message: 'no url provided for rating'});
+          callbacks.taskRatedCb({success: false, message: 'no url or token provided for rating'});
         }
       }
     } else {
