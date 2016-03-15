@@ -18,8 +18,11 @@ var BringgSDK = (function () {
   var ORDER_UPDATE_EVENT = 'order update';
   var ORDER_DONE_EVENT = 'order done';
 
+  var REAL_TIME_PRODUCTION = 'https://realtime2-api.bringg.com/';
+  var REAL_TIME_STAGING = 'https://staging-realtime.bringg.com/';
+
   var REAL_TIME_OPTIONS = {
-    'END_POINT' : 'https://realtime2-api.bringg.com/',
+    'END_POINT' : REAL_TIME_PRODUCTION,
     'SECURED_SOCKETS': true,
     'SOCKET_WEBSOCKET_PORT': 443,
     'SOCKET_XHR_PORT': 8443
@@ -311,6 +314,7 @@ var BringgSDK = (function () {
             callbacks.taskRatedCb(response);
           }
         }).fail(function () {
+          console.log('unknown error while rating');
           if (callbacks.taskRatedCb) {
             callbacks.taskRatedCb({success: false, message: 'Unknown error while rating'});
           }
@@ -330,36 +334,59 @@ var BringgSDK = (function () {
   };
 
   module.submitRatingReason = function (ratingReasonId) {
-    $.post(configuration.rating_reason.rating_reason_url, {
-      rating_reason_id: ratingReasonId,
-      token: configuration.rating_token
-    }, function (response) {
-      if (callbacks.taskPostRatedCb) {
-        callbacks.taskPostRatedCb(response);
+    if (configuration && configuration.rating_reason){
+      if (configuration.rating_reason.rating_reason_url){
+        $.post(configuration.rating_reason.rating_reason_url, {
+          rating_reason_id: ratingReasonId,
+          token: configuration.rating_token
+        }, function (response) {
+          if (callbacks.taskPostRatedCb) {
+            callbacks.taskPostRatedCb(response);
+          }
+        }).fail(function () {
+          console.log('submit rating reason - unknown error');
+          if (callbacks.taskPostRatedCb) {
+            callbacks.taskPostRatedCb({success: false, message: 'Unknown error while submitting rating reason.'});
+          }
+        });
+      } else {
+        console.log('submit rating reason - no url provided for rating');
+        if (callbacks.taskPostRatedCb) {
+          callbacks.taskPostRatedCb({success: false, message: 'no url provided for rating reason'});
+        }
       }
-    }).fail(function () {
+    } else {
+      console.log('submit rating reason - invalid configuration');
       if (callbacks.taskPostRatedCb) {
-        callbacks.taskPostRatedCb({success: false, message: 'Unknown error while submitting rating reason.'});
+        callbacks.taskPostRatedCb({success: false, message: 'invalid configuration'});
       }
-    });
+    }
   };
 
   module.submitNote = function (note) {
     if (!note) {
       return;
     }
-    $.post(configuration.note_url, {
-      note: note,
-      token: configuration.note_token
-    }, function (response) {
+    if (configuration && configuration.note_url && configuration.note_token){
+      $.post(configuration.note_url, {
+        note: note,
+        token: configuration.note_token
+      }, function (response) {
+        if (callbacks.noteAddedCb) {
+          callbacks.noteAddedCb(response);
+        }
+      }).fail(function () {
+        console.log('submit note - error while submitting note');
+        if (callbacks.noteAddedCb) {
+          callbacks.noteAddedCb({success: false, message: 'Unknown error while sending note'});
+        }
+      });
+    } else {
+      console.log('submit note - invalid configuration');
       if (callbacks.noteAddedCb) {
-        callbacks.noteAddedCb(response);
+        callbacks.noteAddedCb({success: false, message: 'invalid configuration'});
       }
-    }).fail(function () {
-      if (callbacks.noteAddedCb) {
-        callbacks.noteAddedCb({success: false, message: 'Unknown error while sending note'});
-      }
-    });
+    }
   };
 
   /**
@@ -369,18 +396,26 @@ var BringgSDK = (function () {
    * @param failureCb
    */
   module.submitLocation = function (position, successCb, failureCb) {
-    $.post(configuration.find_me_url, {
-      position: position,
-      find_me_token: configuration.find_me_token
-    }).success(function (response) {
-      if (successCb) {
-        successCb(response);
-      }
-    }).fail(function () {
-      if (failureCb) {
+    if (configuration && configuration.find_me_url && configuration.find_me_token){
+      $.post(configuration.find_me_url, {
+        position: position,
+        find_me_token: configuration.find_me_token
+      }).success(function (response) {
+        if (successCb) {
+          successCb(response);
+        }
+      }).fail(function () {
+        console.log('submit location - unknwon error');
+        if (failureCb) {
+          failureCb();
+        }
+      });
+    } else {
+      console.log('submit location - invalid configuration');
+      if (failureCb){
         failureCb();
       }
-    });
+    }
   };
 
   /**
@@ -390,6 +425,9 @@ var BringgSDK = (function () {
     var canvas = document.getElementById('newSignature');// save canvas image as data url (png format by default)
     var blob = dataURItoBlob(canvas.toDataURL('image/jpg'));
     var fileName = guid() + '.jpg';
+
+    if (configuration && configuration.tipConfiguration && configuration.tipConfiguration.tipSignatureUploadPath
+     && configuration.tipConfiguration.tipCurrency && configuration.tip_token && tipConfiguration.tipUrl)
     $.post(configuration.tipConfiguration.tipSignatureUploadPath, {
       amount: tip,
       signatureImage: fileName,
