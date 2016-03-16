@@ -742,7 +742,8 @@ var BringgSDK = (function () {
   function setETACalcInterval(){
     etaInterval = setInterval(function () {
       if (!watchingDriver){
-        console.log('eta calculation - no current tracking');
+        console.log('eta - no current tracking, stopping.');
+        clearInterval(etaInterval);
         return;
       }
 
