@@ -1,6 +1,7 @@
 'use strict';
 
 describe('BringgSDK', function () {
+
   it('check the API of the service', function () {
     expect(BringgSDK._socket).toBeNull();
     expect(BringgSDK.initializeBringg).toBeDefined();
@@ -28,95 +29,124 @@ describe('BringgSDK', function () {
     expect(BringgSDK.setConnectionCallbacks).toBeDefined();
   });
 
-  it('connect ', function () {
-    spyOn(BringgSDK, '_connectSocket');
-    spyOn(BringgSDK, 'setConnectionCallbacks');
-    BringgSDK.connect();
-
-    expect(BringgSDK._connectSocket).toHaveBeenCalled();
-    expect(BringgSDK.setConnectionCallbacks).toHaveBeenCalled();
+  it ('check internal methods', function(){
+    expect(BringgSDK._setETACalcInterval).toBeDefined();
+    expect(BringgSDK._onETAIntervalSet).toBeDefined();
+    expect(BringgSDK._setPollingInterval).toBeDefined();
+    expect(BringgSDK._setCredentials).toBeDefined();
   });
 
-  it('disconnect', function () {
+  describe('sockets', function(){
+    it('connect ', function () {
+      spyOn(BringgSDK, '_connectSocket');
+      spyOn(BringgSDK, 'setConnectionCallbacks');
+      BringgSDK.connect();
 
-    var socket = {
-      removeAllListeners: function () {
-
-      }, disconnect: function () {
-
-      }, connected: true
-    };
-
-    spyOn(socket, 'removeAllListeners');
-    spyOn(socket, 'disconnect');
-    BringgSDK._socket = socket;
-
-    BringgSDK.disconnect();
-
-    expect(socket.removeAllListeners).toHaveBeenCalled();
-    expect(socket.disconnect).toHaveBeenCalled();
-    expect(BringgSDK._socket).toBeNull();
-  });
-
-  it('rate with invalid config', function(){
-    var callback = jasmine.createSpy('callback');
-    BringgSDK.setEventCallback({
-      'taskRatedCb': callback
-    });
-    var configuration = null;
-    BringgSDK.setConfiguration(configuration);
-    BringgSDK.submitRating(faker.random.number());
-    expect(callback).toHaveBeenCalledWith({success: false, message: 'invalid configuration'});
-
-    configuration = {};
-    BringgSDK.setConfiguration(configuration);
-    BringgSDK.submitRating(faker.random.number());
-    expect(callback).toHaveBeenCalledWith({success: false, message: 'no url or token provided for rating'});
-
-    configuration = {rating_url: faker.internet.url()};
-    BringgSDK.setConfiguration(configuration);
-    BringgSDK.submitRating(faker.random.number());
-    expect(callback).toHaveBeenCalledWith({success: false, message: 'no url or token provided for rating'});
-
-    configuration = {rating_token : faker.internet.password()};
-    BringgSDK.setConfiguration(configuration);
-    BringgSDK.submitRating(faker.random.number());
-    expect(callback).toHaveBeenCalledWith({success: false, message: 'no url or token provided for rating'});
-  });
-
-  it('rate error from server', function(){
-    var callback = jasmine.createSpy('callback');
-    BringgSDK.setEventCallback({
-      'taskRatedCb': callback
+      expect(BringgSDK._connectSocket).toHaveBeenCalled();
+      expect(BringgSDK.setConnectionCallbacks).toHaveBeenCalled();
     });
 
-    window.$ = {post:function(){
-     return {fail: function(){
-       callback({success: false, message: 'Unknown error while rating'});
-     }}
-    }};
+    it('disconnect', function () {
 
-    var configuration = {rating_url: faker.internet.url(), rating_token : faker.internet.password()};
-    BringgSDK.setConfiguration(configuration);
-    BringgSDK.submitRating(faker.random.number());
-    expect(callback).toHaveBeenCalledWith({success: false, message: 'Unknown error while rating'});
+      var socket = {
+        removeAllListeners: function () {
+
+        }, disconnect: function () {
+
+        }, connected: true
+      };
+
+      spyOn(socket, 'removeAllListeners');
+      spyOn(socket, 'disconnect');
+      BringgSDK._socket = socket;
+
+      BringgSDK.disconnect();
+
+      expect(socket.removeAllListeners).toHaveBeenCalled();
+      expect(socket.disconnect).toHaveBeenCalled();
+      expect(BringgSDK._socket).toBeNull();
+    });
   });
 
-  it('rate success from server', function(){
-    var response = {success : true};
-    var callback = jasmine.createSpy('callback');
-    BringgSDK.setEventCallback({
-      'taskRatedCb': callback
+  describe('rating', function(){
+    it('with invalid config', function(){
+      var callback = jasmine.createSpy('callback');
+      BringgSDK.setEventCallback({
+        'taskRatedCb': callback
+      });
+      var configuration = null;
+      BringgSDK.setConfiguration(configuration);
+      BringgSDK.submitRating(faker.random.number());
+      expect(callback).toHaveBeenCalledWith({success: false, message: 'invalid configuration'});
+
+      configuration = {};
+      BringgSDK.setConfiguration(configuration);
+      BringgSDK.submitRating(faker.random.number());
+      expect(callback).toHaveBeenCalledWith({success: false, message: 'no url or token provided for rating'});
+
+      configuration = {rating_url: faker.internet.url()};
+      BringgSDK.setConfiguration(configuration);
+      BringgSDK.submitRating(faker.random.number());
+      expect(callback).toHaveBeenCalledWith({success: false, message: 'no url or token provided for rating'});
+
+      configuration = {rating_token : faker.internet.password()};
+      BringgSDK.setConfiguration(configuration);
+      BringgSDK.submitRating(faker.random.number());
+      expect(callback).toHaveBeenCalledWith({success: false, message: 'no url or token provided for rating'});
     });
 
-    window.$ = {post : function(url, params, successCallback){
-      callback(response);
-      return{fail : function(){}};
-    }};
+    it('error from server', function(){
+      var callback = jasmine.createSpy('callback');
+      BringgSDK.setEventCallback({
+        'taskRatedCb': callback
+      });
 
-    var configuration = {rating_url: faker.internet.url(), rating_token : faker.internet.password()};
-    BringgSDK.setConfiguration(configuration);
-    BringgSDK.submitRating(faker.random.number());
-    expect(callback).toHaveBeenCalledWith({success: true});
+      window.$ = {post:function(){
+        return {fail: function(){
+          callback({success: false, message: 'Unknown error while rating'});
+        }}
+      }};
+
+      var configuration = {rating_url: faker.internet.url(), rating_token : faker.internet.password()};
+      BringgSDK.setConfiguration(configuration);
+      BringgSDK.submitRating(faker.random.number());
+      expect(callback).toHaveBeenCalledWith({success: false, message: 'Unknown error while rating'});
+    });
+
+    it('success from server', function(){
+      var response = {success : true};
+      var callback = jasmine.createSpy('callback');
+      BringgSDK.setEventCallback({
+        'taskRatedCb': callback
+      });
+
+      window.$ = {post : function(url, params, successCallback){
+        callback(response);
+        return{fail : function(){}};
+      }};
+
+      var configuration = {rating_url: faker.internet.url(), rating_token : faker.internet.password()};
+      BringgSDK.setConfiguration(configuration);
+      BringgSDK.submitRating(faker.random.number());
+      expect(callback).toHaveBeenCalledWith({success: true});
+    });
+  });
+
+  describe('eta', function(){
+    it('eta calc interval should call set interval with the correct params', function(){
+      spyOn(window,'setInterval');
+      spyOn(window,'setTimeout');
+      var interval = faker.random.number();
+      BringgSDK._setETACalcInterval(interval);
+      expect(window.setInterval).toHaveBeenCalledWith(BringgSDK._onETAIntervalSet, interval);
+      expect(window.setTimeout).toHaveBeenCalledWith(BringgSDK._onETATimeoutSet, 3000);
+    });
+
+    it('onEtaIntervalSet should clear interval if not watching driver ', function(){
+      BringgSDK._setWatchingDriver(false);
+      spyOn(window,'clearInterval');
+      BringgSDK._onETAIntervalSet();
+      expect(window.clearInterval).toHaveBeenCalled();
+    });
   });
 });

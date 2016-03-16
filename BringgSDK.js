@@ -551,11 +551,17 @@ var BringgSDK = (function () {
     return window.SECURED_SOCKETS ? window.SECURED_SOCKETS : REAL_TIME_OPTIONS.SECURED_SOCKETS;
   }
 
+  module._setWatchingDriver = function(isWatching){
+    watchingDriver = isWatching;
+  };
+
+  module._setWatchingOrder = function(isWatching){
+    watchingOrder = isWatching;
+  };
 
   /**
    * connect the socket and registers all connection listeners.
    * if a previous connection exists it closes it first.
-   * @private
    */
   module._connectSocket = function() {
     module._closeSocketConnection();
@@ -575,7 +581,6 @@ var BringgSDK = (function () {
 
   /**
    * closes the socket connection and remove all listeners. does not disconnects later.
-   * @private
    */
   module._closeSocketConnection = function(){
     if (module._socket){
@@ -589,9 +594,59 @@ var BringgSDK = (function () {
   };
 
   /**
+   *
+   */
+  module._onETAIntervalSet = function () {
+    if (!watchingDriver){
+      console.log('eta - no current tracking, stopping.');
+      clearInterval(etaInterval);
+      return;
+    }
+
+    var eta = 0;
+    if (lastEta && lastETAUpdate && watchingDriver) {
+      if (new Date().getTime() - lastETAUpdate > 1000 * 60) {
+        console.log('Over a minute since eta update, recalculating ETA');
+        if (etaFromServer) {
+          eta = module.getLastKnownETA();
+          if (eta <= 5) {
+            console.log('(eta ' + eta + ') -> Not taking from server anymore');
+            etaFromServer = false;
+            updateNow = true;
+          }
+        } else {
+          if (lastEta > 1) {
+            eta = lastEta - 1;
+          }
+        }
+        if (callbacks.etaUpdateCb) {
+          callbacks.etaUpdateCb(eta);
+        }
+      }
+    }
+  };
+
+  module._onETATimeoutSet = function(){
+    if (lastETAUpdate === null && watchingDriver) {
+      console.log('no lastETAUpdate after timeout, calculating');
+      calculateETA(configuration.current_lat, configuration.current_lng, destination_lat, destination_lng, destination, function () {
+        customerAlert({alert_type: 1, updated_eta: lastEta, driverActivity: driverActivity});
+      });
+    }
+  };
+
+  /**
+   * set timer interval for calculating eta.
+   * will only calculate if in the state of watching driver's progress.
+   */
+  module._setETACalcInterval = function(timeoutForETACalculation){
+    etaInterval = setInterval(module._onETAIntervalSet, timeoutForETACalculation);
+    setTimeout(module._onETATimeoutSet, 3000);
+  };
+
+  /**
    * validates configuration and
    * @param configuration
-   * @private
    */
   module._onNewConfiguration = function(configuration){
 
@@ -610,10 +665,10 @@ var BringgSDK = (function () {
 
         setDriverActivity(configuration.driverActivity);
 
-        setPollingInterval();
+        module._setPollingInterval();
 
         initETAMethod();
-        setETACalcInterval();
+        module._setETACalcInterval(timeoutForETACalculation);
 
         setLocationAnimationInterval();
       }
@@ -639,7 +694,6 @@ var BringgSDK = (function () {
   /**
    *
    * @param params
-   * @private
    */
   module._setCredentials = function(params){
     if (params.token) {
@@ -739,48 +793,7 @@ var BringgSDK = (function () {
     });
   }
 
-  function setETACalcInterval(){
-    etaInterval = setInterval(function () {
-      if (!watchingDriver){
-        console.log('eta - no current tracking, stopping.');
-        clearInterval(etaInterval);
-        return;
-      }
-
-      var eta = 0;
-      if (lastEta && lastETAUpdate && watchingDriver) {
-        if (new Date().getTime() - lastETAUpdate > 1000 * 60) {
-          console.log('Over a minute since eta update, recalculating ETA');
-          if (etaFromServer) {
-            eta = module.getLastKnownETA();
-            if (eta <= 5) {
-              console.log('(eta ' + eta + ') -> Not taking from server anymore');
-              etaFromServer = false;
-              updateNow = true;
-            }
-          } else {
-            if (lastEta > 1) {
-              eta = lastEta - 1;
-            }
-          }
-          if (callbacks.etaUpdateCb) {
-            callbacks.etaUpdateCb(eta);
-          }
-        }
-      }
-    }, timeoutForETACalculation);
-
-    setTimeout(function () {
-      if (lastETAUpdate === null && watchingDriver) {
-        console.log('no lastETAUpdate after timeout, calculating');
-        calculateETA(configuration.current_lat, configuration.current_lng, destination_lat, destination_lng, destination, function () {
-          customerAlert({alert_type: 1, updated_eta: lastEta, driverActivity: driverActivity});
-        });
-      }
-    }, 3000);
-  }
-
-  function setPollingInterval(){
+  module._setPollingInterval = function(){
 
     if (pollingInterval) {
       clearInterval(pollingInterval);
