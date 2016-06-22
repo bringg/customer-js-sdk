@@ -149,4 +149,69 @@ describe('BringgSDK', function () {
       expect(window.clearInterval).toHaveBeenCalled();
     });
   });
+
+  describe('watch', function(){
+    describe('order', function(){
+      it('should use callback on no response', function(){
+        var callback = jasmine.createSpy('callback');
+        BringgSDK._watchOrderCb(undefined, callback);
+        expect(callback).toHaveBeenCalledWith({error: 'watch order failed - no response'});
+      });
+
+      it('should use callback on failure', function(){
+        var callback = jasmine.createSpy('callback');
+        BringgSDK._watchOrderCb({}, callback);
+        expect(callback).toHaveBeenCalledWith({error: 'watch order failed - unknown reason'});
+      });
+
+      it('should use callback on expired', function(){
+        var callback = jasmine.createSpy('callback');
+        BringgSDK._watchOrderCb({expired: true}, callback);
+        expect(callback).toHaveBeenCalledWith({error: 'expired'});
+      });
+
+      it('should use callback on success', function(){
+        var callback = jasmine.createSpy('callback');
+        var result = {success: true};
+        BringgSDK._watchOrderCb(result, callback);
+        expect(callback).toHaveBeenCalledWith(result);
+      });
+    });
+
+    describe('driver', function(){
+      it('should use callback on failure', function(){
+        var callback = jasmine.createSpy('callback');
+        BringgSDK._watchDriverCb({}, callback);
+        expect(callback).toHaveBeenCalledWith({error: 'failed watching driver'});
+
+        BringgSDK._watchDriverCb(undefined, callback);
+        expect(callback).toHaveBeenCalledWith({error: 'failed watching driver'});
+      });
+
+      it('should use callback on success', function(){
+        var callback = jasmine.createSpy('callback');
+        var result = {success: true};
+        BringgSDK._watchDriverCb(result, callback);
+        expect(callback).toHaveBeenCalledWith(result);
+      });
+    });
+
+    describe('waypoint', function(){
+      it('should use callback on failure', function(){
+        var callback = jasmine.createSpy('callback');
+        BringgSDK._watchWayPointCb({}, callback);
+        expect(callback).toHaveBeenCalledWith({error: 'failed watching waypoint'});
+
+        BringgSDK._watchWayPointCb(undefined, callback);
+        expect(callback).toHaveBeenCalledWith({error: 'failed watching waypoint'});
+      });
+
+      it('should use callback on success', function(){
+        var callback = jasmine.createSpy('callback');
+        var result = {success: true};
+        BringgSDK._watchWayPointCb(result, callback);
+        expect(callback).toHaveBeenCalledWith(result);
+      });
+    });
+  });
 });
