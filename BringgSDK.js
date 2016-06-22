@@ -229,10 +229,18 @@ var BringgSDK = (function () {
       if (result.expired) {
         console.log('share expired');
         configuration.expired = true;
+        if (callback){
+          callback({error: 'expired'})
+        }
+      } else if (callback){
+        callback({error: 'watch order failed - unknown reason'})
       }
 
     } else {
       console.log('watch order: no result');
+      if (callback){
+        callback({error: 'watch order failed - no response'})
+      }
     }
   };
 
@@ -257,6 +265,8 @@ var BringgSDK = (function () {
       if (callback) {
         callback(result)
       }
+    } else if (callback){
+      callback({error: 'failed watching driver'})
     }
   };
 
@@ -279,6 +289,8 @@ var BringgSDK = (function () {
       if (callback) {
         callback(result);
       }
+    } else if (callback){
+      callback({error: 'failed watching waypoint'})
     }
   };
 
@@ -826,7 +838,7 @@ var BringgSDK = (function () {
         lastEventTime = new Date().getTime();
       }
     }, timeoutForRestPoll);
-  }
+  };
 
   function getShareConfig(uuid, callback, errorCallback){
     console.log('Getting shared config for uuid: ' + uuid);
