@@ -28,14 +28,12 @@ var BringgSDK = (function () {
     'SOCKET_XHR_PORT': 8443
   };
 
-  var RETURN_CODES = {
+  module.RETURN_CODES = {
     'success': 0,
     'expired': 1,
     'unknown_reason': 2,
-    'no_response': 3,
-    'failed_watching_driver': 4,
-    'failed_watching_way_point': 5
-  }
+    'no_response': 3
+  };
 
   //========================================================================
   //
@@ -239,16 +237,16 @@ var BringgSDK = (function () {
         console.log('share expired');
         configuration.expired = true;
         if (callback){
-          callback({success: false, rc: RETURN_CODES.expired, error: 'expired'})
+          callback({success: false, rc: module.RETURN_CODES.expired, error: 'expired'})
         }
       } else if (callback){
-        callback({success: false, rc: RETURN_CODES.unknown_reason, error: 'watch order failed - unknown reason'})
+        callback({success: false, rc: module.RETURN_CODES.unknown_reason, error: 'watch order failed - unknown reason'})
       }
 
     } else {
       console.log('watch order: no result');
       if (callback){
-        callback({success: false, rc: RETURN_CODES.no_response, error: 'watch order failed - no response'})
+        callback({success: false, rc: module.RETURN_CODES.no_response, error: 'watch order failed - no response'})
       }
     }
   };
@@ -275,7 +273,7 @@ var BringgSDK = (function () {
         callback(result)
       }
     } else if (callback){
-      callback({success: false, rc: RETURN_CODES.failed_watching_driver, error: 'failed watching driver'})
+      callback({success: false, rc: result ? module.RETURN_CODES.unknown_reason : module.RETURN_CODES.no_response, error: 'failed watching driver'})
     }
   };
 
@@ -299,7 +297,7 @@ var BringgSDK = (function () {
         callback(result);
       }
     } else if (callback){
-      callback({success: false, rc: RETURN_CODES.failed_watching_way_point, error: 'failed watching waypoint'})
+      callback({success: false, rc: result ? module.RETURN_CODES.unknown_reason : module.RETURN_CODES.no_response, error: 'failed watching waypoint'})
     }
   };
 
