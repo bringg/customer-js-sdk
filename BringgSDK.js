@@ -982,7 +982,7 @@ var BringgSDK = (function () {
             if (['NOT_FOUND', 'ZERO_RESULTS'].indexOf(element.status) === -1) {
               //var distance = element.distance.text;
               var newEta = Math.floor(element.duration.value / 60);
-              console.log('calculating ETA got ETA: ' + newEta);
+              console.log('calculating ETA - new ETA: ' + element.duration.value + ' seconds');
 
               if (newEta !== lastEta) {
                 lastEta = newEta;
