@@ -106,9 +106,10 @@ var BringgSDK = (function () {
    * obtain customer configuration and initiate the real-time connection.
    * @param params - a dictionary of initialization params. support the following values:
    *  token, share_uuid, order_uuid
-   * @param cb - [optional] a callback for initialization done.
+   * @param initSuccessCb - [optional] a callback for initialization done.
+   * @param initFailedCb - [optional] a callback for initialization failed.
    */
-  module.initializeBringg = function (params, cb) {
+  module.initializeBringg = function (params, initSuccessCb, initFailedCb) {
 
     if (!params){
       console.log('cannot init without params');
@@ -117,13 +118,17 @@ var BringgSDK = (function () {
 
     module._setCredentials(params);
 
+    if (initFailedCb){
+      callbacks.failedLoadingCb = initFailedCb;
+    }
+
     // get config only if provided with share uuid
     var shareUuid = params.share_uuid;
     if (shareUuid) {
       var beforeCall = new Date();
 
       getShareConfig(shareUuid, function (updatedConfiguration) {
-        console.log('new shared config ' + JSON.stringify(configuration));
+        console.log('new shared config ' + JSON.stringify(updatedConfiguration));
 
         var afterCall = new Date() - beforeCall;
         configuration = updatedConfiguration;
@@ -133,8 +138,8 @@ var BringgSDK = (function () {
 
         customerAlert({alert_type: 7, time: afterCall});
 
-        if (cb) {
-          cb(configuration);
+        if (initSuccessCb) {
+          initSuccessCb(configuration);
         }
 
       }, function (jqXHR, textStatus, errorThrown) {
@@ -555,20 +560,30 @@ var BringgSDK = (function () {
   //========================================================================
 
   function getRealTimeEndPoint(){
-    return window.MONITOR_END_POINT ? window.MONITOR_END_POINT : REAL_TIME_OPTIONS.END_POINT;
+    return window.MONITOR_END_POINT ?
+        window.MONITOR_END_POINT.endsWith('/') ? window.MONITOR_END_POINT : window.MONITOR_END_POINT + '/'
+        : REAL_TIME_OPTIONS.END_POINT;
   }
 
   function getWebSocketPort(){
-    return window.SOCKET_WEBSOCKET_PORT ? window.SOCKET_WEBSOCKET_PORT : REAL_TIME_OPTIONS.SOCKET_WEBSOCKET_PORT;
+    return window.SOCKET_WEBSOCKET_PORT ? window.SOCKET_WEBSOCKET_PORT
+        : getRealTimeEndPoint().includes('localhost') ? '3030'
+        : REAL_TIME_OPTIONS.SOCKET_WEBSOCKET_PORT;
   }
 
   function getXHRPort(){
-    return window.SOCKET_XHR_PORT ? window.SOCKET_XHR_PORT : REAL_TIME_OPTIONS.SOCKET_XHR_PORT;
+    return window.SOCKET_XHR_PORT ? window.SOCKET_XHR_PORT
+        : getRealTimeEndPoint().includes('localhost') ? '3030'
+        : REAL_TIME_OPTIONS.SOCKET_XHR_PORT;
   }
 
   function getSecuredSocketSetup(){
-    return window.SECURED_SOCKETS ? window.SECURED_SOCKETS : REAL_TIME_OPTIONS.SECURED_SOCKETS;
+    return window.SECURED_SOCKETS ? window.SECURED_SOCKETS
+        : getRealTimeEndPoint().includes('localhost') ? false
+        : REAL_TIME_OPTIONS.SECURED_SOCKETS;
   }
+
+  // ========================================================================
 
   module._setWatchingDriver = function(isWatching){
     watchingDriver = isWatching;
