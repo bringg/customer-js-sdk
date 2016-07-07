@@ -25,7 +25,7 @@ params can be used to pass credentials and share uuid if you already hold a refe
 `params`:
 ```
 {
-  customer_access_token: ""
+  [optional]customer_access_token: ""
   [optional]share_uuid: "",
 }
 ```
