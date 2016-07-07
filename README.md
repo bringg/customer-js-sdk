@@ -31,7 +31,7 @@ params can be used to pass credentials and share uuid if you already hold a refe
 ```
 
 `if the params include a valid share_uuid, the sdk will automatically connect and preform the whole tracking flow
-*using watch order and watch driver on the relevant order and driver).
+using watch order and watch driver on the relevant order and driver).`
 
 
 ##### connect ([customerAccessToken],[onConnectCb],[onDisconnectCb])
@@ -58,7 +58,8 @@ start tracking an order
 }
 ```
 
-`after calling this method there is no need to call the watchDriver and watchWaypoint as the sdk will figure by himself when it can do so. see setAutoWatchDriver and setAutoWatchWayPoint if you want to call them manually.`
+`after calling this method there is no need to call the watchDriver and watchWaypoint as the sdk will figure by himself
+when it can do so. see setAutoWatchDriver and setAutoWatchWayPoint if you want to call them manually.`
 
 
 
@@ -123,6 +124,7 @@ note that if you instead let the sdk call it for you, you must pass the callback
 ##### setDestination(lat, lng)
 set the destination for the order (i.e the customer's location).
 `the destination is needed for eta calculations.`
+`to get eta calculation, you must either use this method or use initializeBringg with a share_uuid`
 
 ##### setConfiguration(sharedLocationConfiguration)
 usually once the sdk is provided with a share_uuid it obtains the necessary configuration for itself.
@@ -146,6 +148,16 @@ you can turn this on/off if using enable=true/false respectively.
 
 
 ## Examples
+
+##### This shows how to initialize and do a whole tracking experience using a provided share_uuid
+```
+BringgSDK.initializeBringg({share_uuid: YOUR_SHARE_UUID}, function(updatedConfiguration){
+    // initialization succeeded
+}, function(error){
+    // initialization failed
+};
+```
+
 ##### This shows how to watch order manually
 ```
 var customer_access_token = 'YOUR_CUSTOMER_ACCESS_TOKEN'; // may be null 
@@ -197,10 +209,5 @@ BringgSDK.setOrderUpdateCb(orderUpdateCb);
 BringgSDK.setEventCallback({
   'taskRatedCb': onTaskRatedCb
 });
-
-##### This shows how to initialize and do a whole tracking experience using a provided share_uuid
-BringgSDK.initializeBringg({share_uuid: YOUR_SHARE_UUID}, function(updatedConfiguration){
-    //
-}
 
 ```
