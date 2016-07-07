@@ -18,22 +18,20 @@ add the following to your index.html
 
 ### Main methods
 
-##### initializaBringg (params, [initDoneCb])
+##### initializaBringg (params, [initDoneCb], [initFailedCb])
 optional setup function. 
 params can be used to pass credentials and share uuid if you already hold a reference to it.
 
 `params`:
 ```
 {
-  customer_access_token: ""
-  [optional]share_uuid: "",
-  [optional]order_uuid: "",
+  [optional]customer_access_token: ""   // needed if share_uuid is not provided.
+  [optional]share_uuid: "",             // needed if customer_access_token is not provided.
 }
 ```
 
-`if params include share_uuid, after fetching the shared-location config the sdk will automatically connect the realtime`
-
-`if the params include the necessary data for watchOrder, it will be called automatically when realtime connection is established.`
+`if the params include a valid share_uuid, the sdk will automatically connect and preform the whole tracking flow
+using watch order and watch driver on the relevant order and driver).`
 
 
 ##### connect ([customerAccessToken],[onConnectCb],[onDisconnectCb])
@@ -60,7 +58,8 @@ start tracking an order
 }
 ```
 
-`after calling this method there is no need to call the watchDriver and watchWaypoint as the sdk will figure by himself when it can do so. see setAutoWatchDriver and setAutoWatchWayPoint if you want to call them manually.`
+`after calling this method there is no need to call the watchDriver and watchWaypoint as the sdk will figure by himself
+when it can do so. see setAutoWatchDriver and setAutoWatchWayPoint if you want to call them manually.`
 
 
 
@@ -125,6 +124,7 @@ note that if you instead let the sdk call it for you, you must pass the callback
 ##### setDestination(lat, lng)
 set the destination for the order (i.e the customer's location).
 `the destination is needed for eta calculations.`
+`to get eta calculation, you must either use this method or use initializeBringg with a share_uuid`
 
 ##### setConfiguration(sharedLocationConfiguration)
 usually once the sdk is provided with a share_uuid it obtains the necessary configuration for itself.
@@ -148,6 +148,16 @@ you can turn this on/off if using enable=true/false respectively.
 
 
 ## Examples
+
+##### This shows how to initialize and do a whole tracking experience using a provided share_uuid
+```
+BringgSDK.initializeBringg({share_uuid: YOUR_SHARE_UUID}, function(updatedConfiguration){
+    // initialization succeeded
+}, function(error){
+    // initialization failed
+};
+```
+
 ##### This shows how to watch order manually
 ```
 var customer_access_token = 'YOUR_CUSTOMER_ACCESS_TOKEN'; // may be null 
@@ -178,7 +188,7 @@ function onConnect(){
    BringgSDK.watchOrder({
           order_uuid: my_order_uuid,
           way_point_id: my_way_point_id,  
-          share_uuid: my_share_uuid       // can be null if you connected with the customer_access_token..
+          share_uuid: my_share_uuid       // can be null if you connected with the customer_access_token.
         }, function (result) {
           if (result && result.shared_location) {
             // here we can do something with result.shared_location like storing it
@@ -199,4 +209,5 @@ BringgSDK.setOrderUpdateCb(orderUpdateCb);
 BringgSDK.setEventCallback({
   'taskRatedCb': onTaskRatedCb
 });
+
 ```
