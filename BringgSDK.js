@@ -32,7 +32,8 @@ var BringgSDK = (function () {
     'success': 0,
     'expired': 1,
     'unknown_reason': 2,
-    'no_response': 3
+    'no_response': 3,
+    'missing_params': 4
   };
 
   //========================================================================
@@ -112,7 +113,10 @@ var BringgSDK = (function () {
   module.initializeBringg = function (params, initSuccessCb, initFailedCb) {
 
     if (!params){
-      console.log('cannot init without params');
+      log('init failed : missing params');
+      if (initFailedCb){
+        initFailedCb({success: false, rc: module.RETURN_CODES.missing_params, error: 'missing params'});
+      }
       return;
     }
 
@@ -128,7 +132,7 @@ var BringgSDK = (function () {
       var beforeCall = new Date();
 
       getShareConfig(shareUuid, function (updatedConfiguration) {
-        console.log('new shared config ' + JSON.stringify(updatedConfiguration));
+        log('new shared config ' + JSON.stringify(updatedConfiguration));
 
         var afterCall = new Date() - beforeCall;
         configuration = updatedConfiguration;
@@ -144,7 +148,7 @@ var BringgSDK = (function () {
 
       }, function (jqXHR, textStatus, errorThrown) {
         if (callbacks.failedLoadingCb) {
-          callbacks.failedLoadingCb(textStatus);
+          callbacks.failedLoadingCb({success: false, rc: module.RETURN_CODES.unknown_reason, error: textStatus});
         }
       });
     }
@@ -206,7 +210,7 @@ var BringgSDK = (function () {
    * @param callback
    */
   module.watchOrder = function(params, callback){
-    console.log('watching order :' + JSON.stringify(params));
+    log('watching order :' + JSON.stringify(params));
     module._socket.emit('watch order', params, function(result){
       module._watchOrderCb(result, callback);
 
@@ -239,7 +243,7 @@ var BringgSDK = (function () {
       }
 
       if (result.expired) {
-        console.log('share expired');
+        log('share expired');
         configuration.expired = true;
         if (callback){
           callback({success: false, rc: module.RETURN_CODES.expired, error: 'expired'})
@@ -249,7 +253,7 @@ var BringgSDK = (function () {
       }
 
     } else {
-      console.log('watch order: no result');
+      log('watch order: no result');
       if (callback){
         callback({success: false, rc: module.RETURN_CODES.no_response, error: 'watch order failed - no response'})
       }
@@ -262,7 +266,7 @@ var BringgSDK = (function () {
    * @param callback
    */
   module.watchDriver = function(params, callback){
-    console.log('watching driver :' + JSON.stringify(params));
+    log('watching driver :' + JSON.stringify(params));
     module._socket.emit('watch driver', params, function(result){
       module._watchDriverCb(result, callback);
     });
@@ -288,7 +292,7 @@ var BringgSDK = (function () {
    * @param callback
    */
   module.watchWayPoint = function(params, callback){
-    console.log('watching waypoint :' + JSON.stringify(params));
+    log('watching waypoint :' + JSON.stringify(params));
     module._socket.emit('watch way point', params, function(result){
       module._watchWayPointCb(result, callback);
     });
@@ -308,12 +312,12 @@ var BringgSDK = (function () {
 
   module._connectCustomer = function(){
     if (module._credentials !== {}) {
-      console.log('calling connect customer with ' + JSON.stringify(module._credentials));
+      log('calling connect customer with ' + JSON.stringify(module._credentials));
       module._socket.emit('customer connect', module._credentials, function (result) {
-        console.log(JSON.stringify(result));
+        log(JSON.stringify(result));
       });
     } else {
-      console.log('no credentials to connect customer');
+      log('no credentials to connect customer');
     }
   };
 
@@ -338,19 +342,19 @@ var BringgSDK = (function () {
             callbacks.taskRatedCb(response);
           }
         }).fail(function () {
-          console.log('unknown error while rating');
+          log('unknown error while rating');
           if (callbacks.taskRatedCb) {
             callbacks.taskRatedCb({success: false, message: 'Unknown error while rating'});
           }
         });
       } else {
-        console.log('submit rating - no url or token provided for rating');
+        log('submit rating - no url or token provided for rating');
         if (callbacks.taskRatedCb) {
           callbacks.taskRatedCb({success: false, message: 'no url or token provided for rating'});
         }
       }
     } else {
-      console.log('submit rating - no configuration');
+      log('submit rating - no configuration');
       if (callbacks.taskRatedCb) {
         callbacks.taskRatedCb({success: false, message: 'invalid configuration'});
       }
@@ -368,19 +372,19 @@ var BringgSDK = (function () {
             callbacks.taskPostRatedCb(response);
           }
         }).fail(function () {
-          console.log('submit rating reason - unknown error');
+          log('submit rating reason - unknown error');
           if (callbacks.taskPostRatedCb) {
             callbacks.taskPostRatedCb({success: false, message: 'Unknown error while submitting rating reason.'});
           }
         });
       } else {
-        console.log('submit rating reason - no url provided for rating');
+        log('submit rating reason - no url provided for rating');
         if (callbacks.taskPostRatedCb) {
           callbacks.taskPostRatedCb({success: false, message: 'no url provided for rating reason'});
         }
       }
     } else {
-      console.log('submit rating reason - invalid configuration');
+      log('submit rating reason - invalid configuration');
       if (callbacks.taskPostRatedCb) {
         callbacks.taskPostRatedCb({success: false, message: 'invalid configuration'});
       }
@@ -400,13 +404,13 @@ var BringgSDK = (function () {
           callbacks.noteAddedCb(response);
         }
       }).fail(function () {
-        console.log('submit note - error while submitting note');
+        log('submit note - error while submitting note');
         if (callbacks.noteAddedCb) {
           callbacks.noteAddedCb({success: false, message: 'Unknown error while sending note'});
         }
       });
     } else {
-      console.log('submit note - invalid configuration');
+      log('submit note - invalid configuration');
       if (callbacks.noteAddedCb) {
         callbacks.noteAddedCb({success: false, message: 'invalid configuration'});
       }
@@ -429,13 +433,13 @@ var BringgSDK = (function () {
           successCb(response);
         }
       }).fail(function () {
-        console.log('submit location - unknwon error');
+        log('submit location - unknwon error');
         if (failureCb) {
           failureCb();
         }
       });
     } else {
-      console.log('submit location - invalid configuration');
+      log('submit location - invalid configuration');
       if (failureCb){
         failureCb();
       }
@@ -567,19 +571,19 @@ var BringgSDK = (function () {
 
   function getWebSocketPort(){
     return window.SOCKET_WEBSOCKET_PORT ? window.SOCKET_WEBSOCKET_PORT
-        : getRealTimeEndPoint().includes('localhost') ? '3030'
+        : isLocal() ? '3030'
         : REAL_TIME_OPTIONS.SOCKET_WEBSOCKET_PORT;
   }
 
   function getXHRPort(){
     return window.SOCKET_XHR_PORT ? window.SOCKET_XHR_PORT
-        : getRealTimeEndPoint().includes('localhost') ? '3030'
+        : isLocal() ? '3030'
         : REAL_TIME_OPTIONS.SOCKET_XHR_PORT;
   }
 
   function getSecuredSocketSetup(){
     return window.SECURED_SOCKETS ? window.SECURED_SOCKETS
-        : getRealTimeEndPoint().includes('localhost') ? false
+        : isLocal() ? false
         : REAL_TIME_OPTIONS.SECURED_SOCKETS;
   }
 
@@ -632,7 +636,7 @@ var BringgSDK = (function () {
    */
   module._onETAIntervalSet = function () {
     if (!watchingDriver){
-      console.log('eta - no current tracking, stopping.');
+      log('eta - no current tracking, stopping.');
       clearInterval(etaInterval);
       return;
     }
@@ -640,11 +644,11 @@ var BringgSDK = (function () {
     var eta = 0;
     if (lastEta && lastETAUpdate && watchingDriver) {
       if (new Date().getTime() - lastETAUpdate > 1000 * 60) {
-        console.log('Over a minute since eta update, recalculating ETA');
+        log('Over a minute since eta update, recalculating ETA');
         if (etaFromServer) {
           eta = module.getLastKnownETA();
           if (eta <= 5) {
-            console.log('(eta ' + eta + ') -> Not taking from server anymore');
+            log('(eta ' + eta + ') -> Not taking from server anymore');
             etaFromServer = false;
             updateNow = true;
           }
@@ -662,7 +666,7 @@ var BringgSDK = (function () {
 
   module._onETATimeoutSet = function(){
     if (lastETAUpdate === null && watchingDriver) {
-      console.log('no lastETAUpdate after timeout, calculating');
+      log('no lastETAUpdate after timeout, calculating');
       calculateETA(configuration.current_lat, configuration.current_lng, destination_lat, destination_lng, destination, function () {
         customerAlert({alert_type: 1, updated_eta: lastEta, driverActivity: driverActivity});
       });
@@ -819,11 +823,9 @@ var BringgSDK = (function () {
     var data = $.extend({}, {alert_type: 0, token: configuration.alerting_token}, options);
 
     $.post(configuration.alerting_url, data, function (response) {
-      if (response.success) {
-      } else {
-      }
+      log(response.success);
     }).fail(function () {
-      console.error('Failed alerting');
+      log('Failed alerting');
     });
   }
 
@@ -863,15 +865,15 @@ var BringgSDK = (function () {
   };
 
   function getShareConfig(uuid, callback, errorCallback){
-    console.log('Getting shared config for uuid: ' + uuid);
+    log('Getting shared config for uuid: ' + uuid);
     $.getJSON(getRealTimeEndPoint() + 'shared/' + uuid + '?full=true', callback).error(errorCallback);
   }
 
   function getSharedLocation(uuid){
-    console.log('Getting location via REST for uuid: ' + uuid);
+    log('Getting location via REST for uuid: ' + uuid);
 
     $.getJSON(getRealTimeEndPoint() + 'shared/' + uuid + '/location/', function (result) {
-      console.log('Rest location update: ' + JSON.stringify(result));
+      log('Rest location update: ' + JSON.stringify(result));
       if ((result.success || result.status === 'ok') && result.current_lat && result.current_lng) {
         var locationData = {
           lat: result.current_lat,
@@ -885,9 +887,9 @@ var BringgSDK = (function () {
   }
 
   function getOrderViaRest(orderUuid, shareUuid){
-    console.log('Getting order via REST with share uuid: ' + shareUuid);
+    log('Getting order via REST with share uuid: ' + shareUuid);
     $.getJSON(getRealTimeEndPoint() + 'watch/shared/' + shareUuid + '?order_uuid=' + orderUuid, function (result) {
-      console.log('Rest order update: ' + JSON.stringify(result));
+      log('Rest order update: ' + JSON.stringify(result));
       if (result.success && result.order_update){
         module._onOrderUpdate(result.order_update);
       }
@@ -897,9 +899,9 @@ var BringgSDK = (function () {
   }
 
   function createShareForOrderViaRest(orderUuid){
-    console.log('creating share via REST for order_uuid: ' + orderUuid);
+    log('creating share via REST for order_uuid: ' + orderUuid);
     $.getJSON(getRealTimeEndPoint() + 'shared/orders?order_uuid=' + orderUuid, function (result) {
-      console.log('Rest order update: ' + JSON.stringify(result));
+      log('Rest order update: ' + JSON.stringify(result));
       if (result.success && result.order_update){
         module._onOrderUpdate(result.order_update);
       }
@@ -915,7 +917,7 @@ var BringgSDK = (function () {
     } else if (orderUuid){ // if we don't have shared location we have to watch order first
       createShareForOrderViaRest(orderUuid);
     } else {
-      console.log('no shared nor order uuid for polling');
+      log('no shared nor order uuid for polling');
     }
   }
 
@@ -941,7 +943,7 @@ var BringgSDK = (function () {
       if (now - lastETAUpdate > 10 * 60 * 1000 || counterSinceMapResize > MAX_LOCATION_POINTS_FOR_UPDATE || updateNow) {
         var alertOnActivityChange = updateNow;
         updateNow = false;
-        console.log('Updating ETA after timeout of (' + (now - lastETAUpdate) + ') with (' + counterSinceMapResize + ') and (' + updateNow + ')');
+        log('Updating ETA after timeout of (' + (now - lastETAUpdate) + ') with (' + counterSinceMapResize + ') and (' + updateNow + ')');
         calculateETA(nextLocation.lat(), nextLocation.lng(), destination_lat, destination_lng, destination, function () {
           if (alertOnActivityChange) {
             customerAlert({alert_type: 1, updated_eta: lastEta, driverActivity: driverActivity});
@@ -961,15 +963,15 @@ var BringgSDK = (function () {
     if (!watchingDriver){
       return;
     }
-    console.log('calculating ETA.. (' + originLat + ',' + originLng + ') to (' + destLat + ',' + destLng + ')');
+    log('calculating ETA.. (' + originLat + ',' + originLng + ') to (' + destLat + ',' + destLng + ')');
 
-    if (!originLat || ! originLng || !destLat || !destLng){
+    if (!originLat || !originLng || !destLat || !destLng){
       return;
     }
 
     function callback(response, status) {
       if (response) {
-        console.log('calculating ETA received (' + status + '): ', response.rows);
+        log('calculating ETA received (' + status + '): ', response.rows);
       }
       if (status === google.maps.DistanceMatrixStatus.OK) {
         var origins = response.originAddresses;
@@ -982,7 +984,7 @@ var BringgSDK = (function () {
             if (['NOT_FOUND', 'ZERO_RESULTS'].indexOf(element.status) === -1) {
               //var distance = element.distance.text;
               var newEta = Math.floor(element.duration.value / 60);
-              console.log('calculating ETA - new ETA: ' + element.duration.value + ' seconds');
+              log('calculating ETA - new ETA: ' + element.duration.value + ' seconds');
 
               if (newEta !== lastEta) {
                 lastEta = newEta;
@@ -996,7 +998,7 @@ var BringgSDK = (function () {
                 }
               }
             } else {
-              console.log('calculating ETA received (' + element.status + ') no results');
+              log('calculating ETA received (' + element.status + ') no results');
               if (callbacks.etaUpdateCb) {
                 callbacks.etaUpdateCb();
               }
@@ -1004,7 +1006,7 @@ var BringgSDK = (function () {
           }
         }
       } else {
-        console.log('calculating ETA received error: ' + status);
+        log('calculating ETA received error: ' + status);
         if (callbacks.etaUpdateCb) {
           callbacks.etaUpdateCb();
         }
@@ -1022,18 +1024,18 @@ var BringgSDK = (function () {
       destination = new google.maps.LatLng(destLat, destLng);
     } else {
       destination = destAddress;
-      console.log('calculating ETA from address: (' + destAddress + ')');
+      log('calculating ETA from address: (' + destAddress + ')');
     }
 
     if (etaFromServer) {
       lastEta = module.getLastKnownETA();
       if (lastEta <= 1) {
-        console.log('calculating ETA less than a minute, recalculating');
+        log('calculating ETA less than a minute, recalculating');
         etaFromServer = false;
         return calculateETA(originLat, originLng, destLat, destLng, destAddress, onETACalculatedCallback);
       }
       if (lastEta <= 10) { // 10 minutes away can start getting updated ETA without traffic
-        console.log('calculating ETA less than a 10 minutes, not taking from server anymore');
+        log('calculating ETA less than a 10 minutes, not taking from server anymore');
         etaFromServer = false;
       }
       etaMethod = null;
@@ -1057,12 +1059,12 @@ var BringgSDK = (function () {
           avoidTolls: true
         }, callback);
     } else {
-      console.log('no destination or origin for eta');
+      log('no destination or origin for eta');
     }
   }
 
   function onLocationUpdated(data) {
-    console.log('Got location update: ' + JSON.stringify(data));
+    log('Got location update: ' + JSON.stringify(data));
     if (data.lat && data.lng) {
       if (data.lat === 0 || data.lng === 0) {
         customerAlert({alert_type: 2});
@@ -1088,7 +1090,7 @@ var BringgSDK = (function () {
           previousCurrLat = fromLat;
 
         if (!fromLat || !fromLng){
-          console.log('no from coordinates');
+          log('no from coordinates');
 
           if (callbacks.locationUpdateCb) {
             lastKnownLocation = new google.maps.LatLng(data.lat, data.lng);
@@ -1098,7 +1100,7 @@ var BringgSDK = (function () {
           return;
         }
 
-        console.log('Going from ' + fromLat + ',' + fromLng + ' to ' + data.lat + ',' + data.lng);
+        log('Going from ' + fromLat + ',' + fromLng + ' to ' + data.lat + ',' + data.lng);
 
         for (var percent = 0; percent < 1; percent += 0.01) {
           var curLat = fromLat + percent * (data.lat - fromLat),
@@ -1113,14 +1115,14 @@ var BringgSDK = (function () {
         locationFrames.push(new google.maps.LatLng(data.lat, data.lng));
 
         if (lastETAUpdate === null) {
-          console.log('no lastETAUpdate, updating now..');
+          log('no lastETAUpdate, updating now..');
           calculateETA(data.lat, data.lng, destination_lat, destination_lng, destination, function () {
             customerAlert({alert_type: 1, updated_eta: lastEta, driverActivity: driverActivity});
           });
         }
       }
     } else {
-      console.log('Empty location received');
+      log('Empty location received');
     }
   }
 
@@ -1177,7 +1179,7 @@ var BringgSDK = (function () {
    */
   module._addSocketEventListeners = function(){
     module._socket.on('activity change', function (data) {
-      console.log('activity changed');
+      log('activity changed');
       lastEventTime = new Date().getTime();
 
       setDriverActivity(data.activity);
@@ -1185,7 +1187,7 @@ var BringgSDK = (function () {
     });
 
     module._socket.on('way point arrived', function () {
-      console.log('way point arrived');
+      log('way point arrived');
       lastEventTime = new Date().getTime();
       watchingDriver = false;
       if (callbacks.driverArrivedCb) {
@@ -1194,7 +1196,7 @@ var BringgSDK = (function () {
     });
 
     var onWayPointEtaUpdated = function (data) {
-      console.log('way point eta updated');
+      log('way point eta updated');
       lastEventTime = new Date().getTime();
 
       configuration.eta = data.eta;
@@ -1205,7 +1207,7 @@ var BringgSDK = (function () {
     };
 
     var onWayPointDone = function (){
-      console.log('way point done');
+      log('way point done');
 
       module._closeSocketConnection();
 
@@ -1223,7 +1225,7 @@ var BringgSDK = (function () {
     };
 
     var onWayPointLocationUpdated = function (data) {
-      console.log('onWayPointLocationUpdated arrived with ', JSON.stringify(data));
+      log('onWayPointLocationUpdated arrived with ', JSON.stringify(data));
       lastEventTime = new Date().getTime();
 
       configuration.destination_lat = parseFloat(data.lat);
@@ -1252,7 +1254,7 @@ var BringgSDK = (function () {
       callbacks.onConnectCb();
     }
 
-    console.log('Socket connected, adding listeners');
+    log('Socket connected, adding listeners');
     module._addSocketEventListeners();
 
     if (configuration) {
@@ -1265,7 +1267,7 @@ var BringgSDK = (function () {
           });
         }
       } else {
-        console.log('not enough data in config for watch order');
+        log('not enough data in config for watch order');
       }
 
       if (configuration.driver_uuid && configuration.share_uuid) {
@@ -1276,7 +1278,7 @@ var BringgSDK = (function () {
           });
         }
       } else {
-        console.log('not enough data in config for watch driver');
+        log('not enough data in config for watch driver');
       }
 
       if (configuration.order_uuid && configuration.way_point_id) {
@@ -1287,16 +1289,16 @@ var BringgSDK = (function () {
           });
         }
       } else {
-        console.log('not enough data in config for watch waypoint');
+        log('not enough data in config for watch waypoint');
       }
     } else {
-      console.log('onSocketConnected - no configuration yet');
+      log('onSocketConnected - no configuration yet');
     }
   };
 
   function onSocketDisconnected() {
     connected = false;
-    console.log('module._socket disconnected');
+    log('module._socket disconnected');
 
     watchingDriver = false;
     watchingOrder = false;
@@ -1308,17 +1310,26 @@ var BringgSDK = (function () {
   }
 
   function onSocketError(data){
-    console.log('module._socket error: ' + JSON.stringify(data));
+    log('module._socket error: ' + JSON.stringify(data));
   }
 
   function onSocketConnecting(transport){
-    console.log('module._socket connecting with ' + transport);
+    log('module._socket connecting with ' + transport);
   }
 
 
   // =======================================
   // UTILS
   // =======================================
+
+  function isLocal(){
+    return getRealTimeEndPoint().includes('localhost');
+  }
+  function log(text) {
+    if (isLocal()){
+      console.log(text);
+    }
+  }
 
   function guid() {
     function s4() {

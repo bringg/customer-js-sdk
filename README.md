@@ -18,7 +18,7 @@ add the following to your index.html
 
 ### Main methods
 
-##### initializaBringg (params, [initDoneCb])
+##### initializaBringg (params, [initDoneCb], [initFailedCb])
 optional setup function. 
 params can be used to pass credentials and share uuid if you already hold a reference to it.
 
@@ -27,13 +27,11 @@ params can be used to pass credentials and share uuid if you already hold a refe
 {
   customer_access_token: ""
   [optional]share_uuid: "",
-  [optional]order_uuid: "",
 }
 ```
 
-`if params include share_uuid, after fetching the shared-location config the sdk will automatically connect the realtime`
-
-`if the params include the necessary data for watchOrder, it will be called automatically when realtime connection is established.`
+`if the params include a valid share_uuid, the sdk will automatically connect and preform the whole tracking flow
+*using watch order and watch driver on the relevant order and driver).
 
 
 ##### connect ([customerAccessToken],[onConnectCb],[onDisconnectCb])
@@ -178,7 +176,7 @@ function onConnect(){
    BringgSDK.watchOrder({
           order_uuid: my_order_uuid,
           way_point_id: my_way_point_id,  
-          share_uuid: my_share_uuid       // can be null if you connected with the customer_access_token..
+          share_uuid: my_share_uuid       // can be null if you connected with the customer_access_token.
         }, function (result) {
           if (result && result.shared_location) {
             // here we can do something with result.shared_location like storing it
@@ -199,4 +197,10 @@ BringgSDK.setOrderUpdateCb(orderUpdateCb);
 BringgSDK.setEventCallback({
   'taskRatedCb': onTaskRatedCb
 });
+
+##### This shows how to initialize and do a whole tracking experience using a provided share_uuid
+BringgSDK.initializeBringg({share_uuid: YOUR_SHARE_UUID}, function(updatedConfiguration){
+    //
+}
+
 ```
