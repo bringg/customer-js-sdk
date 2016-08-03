@@ -170,11 +170,20 @@ describe('BringgSDK', function () {
           expect(callback).toHaveBeenCalledWith({success: false, rc: BringgSDK.RETURN_CODES.expired, error: 'expired'});
         });
 
-        it('should use callback on success', function(){
-          var callback = jasmine.createSpy('callback');
-          var result = {success: true};
-          BringgSDK._watchOrderCb(result, callback);
-          expect(callback).toHaveBeenCalledWith(result);
+        describe('on success', function(){
+          it('should use callback', function(){
+            var callback = jasmine.createSpy('callback');
+            var result = {success: true};
+            BringgSDK._watchOrderCb(result, callback);
+            expect(callback).toHaveBeenCalledWith(result);
+          });
+
+          it('should mark as watching order', function(){
+            BringgSDK._setWatchingOrder(false);
+
+            BringgSDK._watchOrderCb({success: true});
+            expect(BringgSDK.isWatchingOrder()).toBeTruthy();
+          });
         });
       });
     });

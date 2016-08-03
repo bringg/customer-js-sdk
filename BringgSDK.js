@@ -227,19 +227,12 @@ var BringgSDK = (function () {
 
   module._watchOrderCb = function(result, callback){
     if (result) {
-      if (result.success){
-        watchingOrder = true;
 
-        // cache the params returned from the watch
-        if (result.shared_location) {
-          module.setConfiguration(result.shared_location);
-          configuration.share_uuid = result.shared_location.uuid;
-          module._onNewConfiguration(result.shared_location);
-        }
-
-        if (callback) {
-          callback(result);
-        }
+      // cache the params returned from the watch in any case if we received data (even if expired)
+      if (result.shared_location) {
+        module.setConfiguration(result.shared_location);
+        configuration.share_uuid = result.shared_location.uuid;
+        module._onNewConfiguration(result.shared_location);
       }
 
       if (result.expired) {
@@ -247,6 +240,12 @@ var BringgSDK = (function () {
         configuration.expired = true;
         if (callback){
           callback({success: false, rc: module.RETURN_CODES.expired, error: 'expired'})
+        }
+      } else if (result.success){
+        watchingOrder = true;
+
+        if (callback) {
+          callback(result);
         }
       } else if (callback){
         callback({success: false, rc: module.RETURN_CODES.unknown_reason, error: 'watch order failed - unknown reason'})
