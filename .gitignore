@@ -1,0 +1,12 @@
+node_modules
+.ruby-version
+dist
+.tmp
+.sass-cache
+bower_components
+.idea
+.DS_Store
+/.vimrc
+/.ackrc
+/coverage
+npm-debug.log
