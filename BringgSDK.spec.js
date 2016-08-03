@@ -1,7 +1,6 @@
 'use strict';
 
 describe('BringgSDK', function () {
-
   it('check the API of the service', function () {
     expect(BringgSDK._socket).toBeNull();
     expect(BringgSDK.initializeBringg).toBeDefined();
@@ -152,47 +151,57 @@ describe('BringgSDK', function () {
 
   describe('watch', function(){
     describe('order', function(){
-      it('should use callback on no response', function(){
-        var callback = jasmine.createSpy('callback');
-        BringgSDK._watchOrderCb(undefined, callback);
-        expect(callback).toHaveBeenCalledWith({success: false, rc: BringgSDK.RETURN_CODES.no_response, error: 'watch order failed - no response'});
-      });
+      describe('module callback', function(){
+        it('should use callback on no response', function(){
+          var callback = jasmine.createSpy('callback');
+          BringgSDK._watchOrderCb(undefined, callback);
+          expect(callback).toHaveBeenCalledWith({success: false, rc: BringgSDK.RETURN_CODES.no_response, error: 'watch order failed - no response'});
+        });
 
-      it('should use callback on failure', function(){
-        var callback = jasmine.createSpy('callback');
-        BringgSDK._watchOrderCb({}, callback);
-        expect(callback).toHaveBeenCalledWith({success: false, rc: BringgSDK.RETURN_CODES.unknown_reason, error: 'watch order failed - unknown reason'});
-      });
+        it('should use callback on failure', function(){
+          var callback = jasmine.createSpy('callback');
+          BringgSDK._watchOrderCb({}, callback);
+          expect(callback).toHaveBeenCalledWith({success: false, rc: BringgSDK.RETURN_CODES.unknown_reason, error: 'watch order failed - unknown reason'});
+        });
 
-      it('should use callback on expired', function(){
-        var callback = jasmine.createSpy('callback');
-        BringgSDK._watchOrderCb({expired: true}, callback);
-        expect(callback).toHaveBeenCalledWith({success: false, rc: BringgSDK.RETURN_CODES.expired, error: 'expired'});
-      });
+        it('should use callback on expired', function(){
+          var callback = jasmine.createSpy('callback');
+          BringgSDK._watchOrderCb({expired: true}, callback);
+          expect(callback).toHaveBeenCalledWith({success: false, rc: BringgSDK.RETURN_CODES.expired, error: 'expired'});
+        });
 
-      it('should use callback on success', function(){
-        var callback = jasmine.createSpy('callback');
-        var result = {success: true};
-        BringgSDK._watchOrderCb(result, callback);
-        expect(callback).toHaveBeenCalledWith(result);
+        it('should use callback on success', function(){
+          var callback = jasmine.createSpy('callback');
+          var result = {success: true};
+          BringgSDK._watchOrderCb(result, callback);
+          expect(callback).toHaveBeenCalledWith(result);
+        });
       });
     });
 
     describe('driver', function(){
-      it('should use callback on failure', function(){
-        var callback = jasmine.createSpy('callback');
-        BringgSDK._watchDriverCb({}, callback);
-        expect(callback).toHaveBeenCalledWith({success: false, rc: BringgSDK.RETURN_CODES.unknown_reason, error: 'failed watching driver'});
+      describe('module callback', function(){
+        it('should use callback on failure', function(){
+          var callback = jasmine.createSpy('callback');
+          BringgSDK._watchDriverCb({}, callback);
+          expect(callback).toHaveBeenCalledWith({success: false, rc: BringgSDK.RETURN_CODES.unknown_reason, error: 'failed watching driver'});
 
-        BringgSDK._watchDriverCb(undefined, callback);
-        expect(callback).toHaveBeenCalledWith({success: false, rc: BringgSDK.RETURN_CODES.no_response, error: 'failed watching driver'});
-      });
+          BringgSDK._watchDriverCb(undefined, callback);
+          expect(callback).toHaveBeenCalledWith({success: false, rc: BringgSDK.RETURN_CODES.no_response, error: 'failed watching driver'});
+        });
 
-      it('should use callback on success', function(){
-        var callback = jasmine.createSpy('callback');
-        var result = {success: true};
-        BringgSDK._watchDriverCb(result, callback);
-        expect(callback).toHaveBeenCalledWith(result);
+        it('should use callback on success', function(){
+          var callback = jasmine.createSpy('callback');
+          var result = {success: true};
+          BringgSDK._watchDriverCb(result, callback);
+          expect(callback).toHaveBeenCalledWith(result);
+        });
+
+        it('should set eta calculation interval on success', function(){
+          spyOn(BringgSDK, '_setETACalcInterval');
+          BringgSDK._watchDriverCb({success: true});
+          expect(BringgSDK._setETACalcInterval).toHaveBeenCalled();
+        });
       });
     });
 
@@ -212,6 +221,57 @@ describe('BringgSDK', function () {
         BringgSDK._watchWayPointCb(result, callback);
         expect(callback).toHaveBeenCalledWith(result);
       });
+    });
+  });
+
+  describe('set watching', function(){
+    it('should mark driver watched accordingly', function(){
+      BringgSDK._setWatchingDriver(false);
+      expect(BringgSDK.isWatchingDriver()).toBeFalsy();
+      BringgSDK._setWatchingDriver(true);
+      expect(BringgSDK.isWatchingDriver()).toBeTruthy();
+      BringgSDK._setWatchingDriver(false);
+      expect(BringgSDK.isWatchingDriver()).toBeFalsy();
+    });
+
+    it('should mark order watched accordingly', function(){
+      BringgSDK._setWatchingOrder(false);
+      expect(BringgSDK.isWatchingOrder()).toBeFalsy();
+      BringgSDK._setWatchingOrder(true);
+      expect(BringgSDK.isWatchingOrder()).toBeTruthy();
+      BringgSDK._setWatchingOrder(false);
+      expect(BringgSDK.isWatchingOrder()).toBeFalsy();
+    });
+  });
+
+  describe('on new configuration', function(){
+    it('should set eta calc interval if already watching driver', function(){
+      spyOn(BringgSDK, '_setETACalcInterval');
+      spyOn(BringgSDK, '_setDriverActivity');
+      BringgSDK._setWatchingDriver(true);
+      BringgSDK._onNewConfiguration({});
+      expect(BringgSDK._setETACalcInterval).toHaveBeenCalled();
+    });
+
+    it('should not set eta calc interval if not watching driver', function(){
+      spyOn(BringgSDK, '_setETACalcInterval');
+      spyOn(BringgSDK, '_setDriverActivity');
+      BringgSDK._setWatchingDriver(false);
+      BringgSDK._onNewConfiguration({});
+      expect(BringgSDK._setETACalcInterval).not.toHaveBeenCalled();
+    });
+
+    it('should call disconnect if shared location is expired', function(){
+      spyOn(BringgSDK, 'disconnect');
+      BringgSDK._onNewConfiguration({expired: true});
+      expect(BringgSDK.disconnect).toHaveBeenCalled();
+    });
+
+    it('should not call disconnect if shared location is valid', function(){
+      spyOn(BringgSDK, 'disconnect');
+      spyOn(BringgSDK, '_setDriverActivity');
+      BringgSDK._onNewConfiguration({});
+      expect(BringgSDK.disconnect).not.toHaveBeenCalled();
     });
   });
 });

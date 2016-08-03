@@ -278,6 +278,9 @@ var BringgSDK = (function () {
     if (result && result.success) {
       watchingDriver = true;
 
+      // start calculating eta once we successfully watch a driver
+      module._setETACalcInterval(timeoutForETACalculation);
+
       if (callback) {
         callback(result)
       }
@@ -557,6 +560,14 @@ var BringgSDK = (function () {
     shouldAutoWatchWayPoint = enable
   };
 
+  module.isWatchingDriver = function(){
+    return watchingDriver;
+  };
+
+  module.isWatchingOrder = function(){
+    return watchingOrder;
+  };
+
   //========================================================================
   //
   // PRIVATE
@@ -565,7 +576,7 @@ var BringgSDK = (function () {
 
   function getRealTimeEndPoint(){
     return window.MONITOR_END_POINT ?
-        window.MONITOR_END_POINT.endsWith('/') ? window.MONITOR_END_POINT : window.MONITOR_END_POINT + '/'
+        window.MONITOR_END_POINT.indexOf('/', this.length - 1) !== -1 ? window.MONITOR_END_POINT : window.MONITOR_END_POINT + '/'
         : REAL_TIME_OPTIONS.END_POINT;
   }
 
@@ -701,12 +712,14 @@ var BringgSDK = (function () {
           destination = configuration.destination;
         }
 
-        setDriverActivity(configuration.driverActivity);
+        module._setDriverActivity(configuration.driverActivity);
 
         module._setPollingInterval();
 
         initETAMethod();
-        module._setETACalcInterval(timeoutForETACalculation);
+        if (watchingDriver) {
+          module._setETACalcInterval(timeoutForETACalculation);
+        }
 
         setLocationAnimationInterval();
       }
@@ -794,7 +807,7 @@ var BringgSDK = (function () {
     }
   }
 
-  function setDriverActivity(newActivity) {
+  module._setDriverActivity = function(newActivity) {
     driverActivity = google.maps.TravelMode.DRIVING;
 
     switch (newActivity) {
@@ -1182,7 +1195,7 @@ var BringgSDK = (function () {
       log('activity changed');
       lastEventTime = new Date().getTime();
 
-      setDriverActivity(data.activity);
+      module._setDriverActivity(data.activity);
       updateNow = true;
     });
 
@@ -1323,8 +1336,9 @@ var BringgSDK = (function () {
   // =======================================
 
   function isLocal(){
-    return getRealTimeEndPoint().includes('localhost');
+    return getRealTimeEndPoint().indexOf('localhost') != -1;
   }
+
   function log(text) {
     if (isLocal()){
       console.log(text);
