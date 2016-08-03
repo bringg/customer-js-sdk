@@ -652,7 +652,7 @@ var BringgSDK = (function () {
     }
 
     var eta = 0;
-    if (lastEta && lastETAUpdate && watchingDriver) {
+    if (lastEta && lastETAUpdate) {
       if (new Date().getTime() - lastETAUpdate > 1000 * 60) {
         log('Over a minute since eta update, recalculating ETA');
         if (etaFromServer) {

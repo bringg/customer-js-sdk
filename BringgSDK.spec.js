@@ -132,7 +132,7 @@ describe('BringgSDK', function () {
   });
 
   describe('eta', function(){
-    it('eta calc interval should call set interval with the correct params', function(){
+    it('calc interval should call set interval with the correct params', function(){
       spyOn(window,'setInterval');
       spyOn(window,'setTimeout');
       var interval = faker.random.number();
@@ -152,38 +152,38 @@ describe('BringgSDK', function () {
   describe('watch', function(){
     describe('order', function(){
       describe('module callback', function(){
-        it('should use callback on no response', function(){
-          var callback = jasmine.createSpy('callback');
-          BringgSDK._watchOrderCb(undefined, callback);
-          expect(callback).toHaveBeenCalledWith({success: false, rc: BringgSDK.RETURN_CODES.no_response, error: 'watch order failed - no response'});
-        });
+        describe('should use external callback', function(){
+          it('on no response', function(){
+            var callback = jasmine.createSpy('callback');
+            BringgSDK._watchOrderCb(undefined, callback);
+            expect(callback).toHaveBeenCalledWith({success: false, rc: BringgSDK.RETURN_CODES.no_response, error: 'watch order failed - no response'});
+          });
 
-        it('should use callback on failure', function(){
-          var callback = jasmine.createSpy('callback');
-          BringgSDK._watchOrderCb({}, callback);
-          expect(callback).toHaveBeenCalledWith({success: false, rc: BringgSDK.RETURN_CODES.unknown_reason, error: 'watch order failed - unknown reason'});
-        });
+          it('on failure', function(){
+            var callback = jasmine.createSpy('callback');
+            BringgSDK._watchOrderCb({}, callback);
+            expect(callback).toHaveBeenCalledWith({success: false, rc: BringgSDK.RETURN_CODES.unknown_reason, error: 'watch order failed - unknown reason'});
+          });
 
-        it('should use callback on expired', function(){
-          var callback = jasmine.createSpy('callback');
-          BringgSDK._watchOrderCb({expired: true}, callback);
-          expect(callback).toHaveBeenCalledWith({success: false, rc: BringgSDK.RETURN_CODES.expired, error: 'expired'});
-        });
+          it('on expired', function(){
+            var callback = jasmine.createSpy('callback');
+            BringgSDK._watchOrderCb({expired: true}, callback);
+            expect(callback).toHaveBeenCalledWith({success: false, rc: BringgSDK.RETURN_CODES.expired, error: 'expired'});
+          });
 
-        describe('on success', function(){
-          it('should use callback', function(){
+          it('on success', function(){
             var callback = jasmine.createSpy('callback');
             var result = {success: true};
             BringgSDK._watchOrderCb(result, callback);
             expect(callback).toHaveBeenCalledWith(result);
           });
+        });
 
-          it('should mark as watching order', function(){
-            BringgSDK._setWatchingOrder(false);
+        it('should mark as watching order on success', function(){
+          BringgSDK._setWatchingOrder(false);
 
-            BringgSDK._watchOrderCb({success: true});
-            expect(BringgSDK.isWatchingOrder()).toBeTruthy();
-          });
+          BringgSDK._watchOrderCb({success: true});
+          expect(BringgSDK.isWatchingOrder()).toBeTruthy();
         });
       });
     });
