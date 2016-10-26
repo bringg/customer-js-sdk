@@ -149,6 +149,13 @@ you can turn this on/off if using enable=true/false respectively.
 
 ## Examples
 
+
+### for an example of using our sdk with a simple google map see the customer-sdk-demo.html file attached
+##### don't forget you need to follow installation steps.
+##### don't forget to set your own keys and params.
+
+
+### here are few separated examples for commonly used scenarios
 ##### This shows how to initialize and do a whole tracking experience using a provided share_uuid
 ```
 BringgSDK.initializeBringg({share_uuid: YOUR_SHARE_UUID}, function(updatedConfiguration){
@@ -211,3 +218,7 @@ BringgSDK.setEventCallback({
 });
 
 ```
+
+### Other tips and tricks
+##### disabling CORS while testing on localhost
+`open -a Google\ Chrome --args --disable-web-security --user-data-dir`
