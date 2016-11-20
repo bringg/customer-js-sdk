@@ -1412,13 +1412,11 @@ var BringgSDK = (function () {
       return path;
     }
 
-    var result;
-    if (path.indexOf('http') !== -1) {
-      result = path;
-    }else{
-      result = 'http://app.bringg.com' + path;
+    if (path.indexOf('http') >= 0) {
+      return 'https://app.bringg.com' + path;
     }
-    return result;
+
+    return path;
   }
 
   return module;
