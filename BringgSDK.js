@@ -1412,7 +1412,7 @@ var BringgSDK = (function () {
       return path;
     }
 
-    if (path.indexOf('http') >= 0) {
+    if (path.indexOf('http') === -1) {
       return 'https://app.bringg.com' + path;
     }
 
