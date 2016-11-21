@@ -135,6 +135,13 @@ var BringgSDK = (function () {
         log('new shared config ' + JSON.stringify(updatedConfiguration));
 
         var afterCall = new Date() - beforeCall;
+
+        //update relative paths
+        updatedConfiguration.employee_image = _updateAssetPath(updatedConfiguration.employee_image);
+        updatedConfiguration.deliveryPin = _updateAssetPath(updatedConfiguration.deliveryPin);
+        updatedConfiguration.destinationPin = _updateAssetPath(updatedConfiguration.destinationPin);
+        updatedConfiguration.merchant_logo = _updateAssetPath(updatedConfiguration.merchant_logo);
+
         configuration = updatedConfiguration;
         configuration.share_uuid = shareUuid;
 
@@ -170,26 +177,26 @@ var BringgSDK = (function () {
    * closes the socket connection and clear any polling tasks that are currently running.
    */
   module.disconnect =
-  module.terminateBringg = function () {
-    module._closeSocketConnection();
+    module.terminateBringg = function () {
+      module._closeSocketConnection();
 
-    if (locationFramesInterval) {
-      clearInterval(locationFramesInterval);
-    }
-    if (etaInterval) {
-      clearInterval(etaInterval);
-    }
-    if (pollingInterval) {
-      clearInterval(pollingInterval);
-    }
+      if (locationFramesInterval) {
+        clearInterval(locationFramesInterval);
+      }
+      if (etaInterval) {
+        clearInterval(etaInterval);
+      }
+      if (pollingInterval) {
+        clearInterval(pollingInterval);
+      }
 
-    // clear only the tracking credentials since we might want to use other configs like rating url later.
-    if (configuration) {
-      configuration.share_uuid = null;
-      configuration.order_uuid = null;
-      configuration.way_point_id = null;
-    }
-  };
+      // clear only the tracking credentials since we might want to use other configs like rating url later.
+      if (configuration) {
+        configuration.share_uuid = null;
+        configuration.order_uuid = null;
+        configuration.way_point_id = null;
+      }
+    };
 
   module.isConnected = function(){
     return connected;
@@ -457,36 +464,36 @@ var BringgSDK = (function () {
     var fileName = guid() + '.jpg';
 
     if (configuration && configuration.tipConfiguration && configuration.tipConfiguration.tipSignatureUploadPath
-     && configuration.tipConfiguration.tipCurrency && configuration.tip_token && tipConfiguration.tipUrl)
-    $.post(configuration.tipConfiguration.tipSignatureUploadPath, {
-      amount: tip,
-      signatureImage: fileName,
-      currency: configuration.tipConfiguration.tipCurrency,
-      type: blob.type,
-      tipToken: configuration.tip_token
-    }, function (urlResponse) {
-      $.ajax({
-        url: urlResponse.url,
-        type: 'PUT',
-        data: blob,
-        processData: false,
-        contentType: blob.type
-      }).success(function (res) {
-        $.post(configuration.tipConfiguration.tipUrl, {
-          amount: tip,
-          tipToken: configuration.tip_token,
-          signatureImage: fileName,
-          currency: configuration.tipConfiguration.tipCurrency,
-          taskNoteId: urlResponse.note_id
+      && configuration.tipConfiguration.tipCurrency && configuration.tip_token && tipConfiguration.tipUrl)
+      $.post(configuration.tipConfiguration.tipSignatureUploadPath, {
+        amount: tip,
+        signatureImage: fileName,
+        currency: configuration.tipConfiguration.tipCurrency,
+        type: blob.type,
+        tipToken: configuration.tip_token
+      }, function (urlResponse) {
+        $.ajax({
+          url: urlResponse.url,
+          type: 'PUT',
+          data: blob,
+          processData: false,
+          contentType: blob.type
         }).success(function (res) {
+          $.post(configuration.tipConfiguration.tipUrl, {
+            amount: tip,
+            tipToken: configuration.tip_token,
+            signatureImage: fileName,
+            currency: configuration.tipConfiguration.tipCurrency,
+            taskNoteId: urlResponse.note_id
+          }).success(function (res) {
 
-        }).fail(function (res) {
+          }).fail(function (res) {
 
+          });
         });
-      });
-    }).fail(function (res) {
+      }).fail(function (res) {
 
-    });
+      });
   };
 
   /**
@@ -575,26 +582,26 @@ var BringgSDK = (function () {
 
   function getRealTimeEndPoint(){
     return window.MONITOR_END_POINT ?
-        window.MONITOR_END_POINT.indexOf('/', this.length - 1) !== -1 ? window.MONITOR_END_POINT : window.MONITOR_END_POINT + '/'
-        : REAL_TIME_OPTIONS.END_POINT;
+      window.MONITOR_END_POINT.indexOf('/', this.length - 1) !== -1 ? window.MONITOR_END_POINT : window.MONITOR_END_POINT + '/'
+      : REAL_TIME_OPTIONS.END_POINT;
   }
 
   function getWebSocketPort(){
     return window.SOCKET_WEBSOCKET_PORT ? window.SOCKET_WEBSOCKET_PORT
-        : isLocal() ? '3030'
-        : REAL_TIME_OPTIONS.SOCKET_WEBSOCKET_PORT;
+      : isLocal() ? '3030'
+      : REAL_TIME_OPTIONS.SOCKET_WEBSOCKET_PORT;
   }
 
   function getXHRPort(){
     return window.SOCKET_XHR_PORT ? window.SOCKET_XHR_PORT
-        : isLocal() ? '3030'
-        : REAL_TIME_OPTIONS.SOCKET_XHR_PORT;
+      : isLocal() ? '3030'
+      : REAL_TIME_OPTIONS.SOCKET_XHR_PORT;
   }
 
   function getSecuredSocketSetup(){
     return window.SECURED_SOCKETS ? window.SECURED_SOCKETS
-        : isLocal() ? false
-        : REAL_TIME_OPTIONS.SECURED_SOCKETS;
+      : isLocal() ? false
+      : REAL_TIME_OPTIONS.SECURED_SOCKETS;
   }
 
   // ========================================================================
@@ -1140,6 +1147,16 @@ var BringgSDK = (function () {
 
   module._onOrderUpdate = function(order){
     fillConfig(order);
+
+    //update relative paths
+    if(order.customer){
+      order.customer.image = _updateAssetPath(order.customer.image);
+    }
+
+    if(order.driver){
+      order.driver.profile_image = _updateAssetPath(order.driver.profile_image);
+    }
+
     if (!configuration.order_uuid && order.uuid){
       configuration.order_uuid = order.uuid;
     }
@@ -1390,9 +1407,17 @@ var BringgSDK = (function () {
     head.appendChild(script);
   }
 
+  function _updateAssetPath(path) {
+    if(!path){
+      return path;
+    }
+
+    if (path.indexOf('http') === -1) {
+      return 'https://app.bringg.com' + path;
+    }
+
+    return path;
+  }
+
   return module;
 }());
-
-
-
-
