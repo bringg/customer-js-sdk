@@ -1252,18 +1252,20 @@ var BringgSDK = (function () {
     var onWayPointDone = function (){
       log('way point done');
 
+      if (callbacks.driverLeftCb) {
+        callbacks.driverLeftCb();
+      }
+    };
+
+    var onOrderDone = function (){
+      log('order done');
+
       module._closeSocketConnection();
 
       watchingDriver = false;
 
-      if (configuration.allow_rating) {
-        if (callbacks.driverLeftCb) {
-          callbacks.driverLeftCb();
-        }
-      } else {
-        if (callbacks.taskEndedCb) {
-          callbacks.taskEndedCb();
-        }
+      if (callbacks.taskEndedCb) {
+        callbacks.taskEndedCb();
       }
     };
 
@@ -1282,7 +1284,7 @@ var BringgSDK = (function () {
     module._safeSubscribe(WAY_POINT_DONE_EVENT, onWayPointDone);
     module._safeSubscribe(WAY_POINT_ETA_UPDATE_EVENT, onWayPointEtaUpdated);
     module._safeSubscribe(WAY_POINT_LOCATION_UPDATE_EVENT, onWayPointLocationUpdated);
-    module._safeSubscribe(ORDER_DONE_EVENT, onWayPointDone);
+    module._safeSubscribe(ORDER_DONE_EVENT, onOrderDone);
     module._safeSubscribe(ORDER_UPDATE_EVENT, module._onOrderUpdate);
     module._safeSubscribe(LOCATION_UPDATE_EVENT, onLocationSocketUpdated);
   };
