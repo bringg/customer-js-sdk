@@ -582,7 +582,7 @@ var BringgSDK = (function () {
 
   function getRealTimeEndPoint(){
     return window.MONITOR_END_POINT ?
-      window.MONITOR_END_POINT.indexOf('/', this.length - 1) !== -1 ? window.MONITOR_END_POINT : window.MONITOR_END_POINT + '/'
+      window.MONITOR_END_POINT.indexOf('/', window.MONITOR_END_POINT.length - 1) !== -1 ? window.MONITOR_END_POINT : window.MONITOR_END_POINT + '/'
       : REAL_TIME_OPTIONS.END_POINT;
   }
 
@@ -1202,12 +1202,26 @@ var BringgSDK = (function () {
     onLocationUpdated(data);
   }
 
+  /*
+   * Safe subscribe - first remove all subscription to this
+   * event and then subscribe.
+   *
+   * This useful for events with subscribiption that dosen't
+   * have repeating event names.
+   *
+   * @private
+   */
+  module._safeSubscribe = function(event, callback) {
+    module._socket.off(event);
+    module._socket.on(event, callback);
+  };
+
   /**
    *
    * @private
    */
   module._addSocketEventListeners = function(){
-    module._socket.on('activity change', function (data) {
+    module._safeSubscribe('activity change', function (data) {
       log('activity changed');
       lastEventTime = new Date().getTime();
 
@@ -1215,7 +1229,7 @@ var BringgSDK = (function () {
       updateNow = true;
     });
 
-    module._socket.on('way point arrived', function () {
+    module._safeSubscribe('way point arrived', function () {
       log('way point arrived');
       lastEventTime = new Date().getTime();
       watchingDriver = false;
@@ -1265,12 +1279,12 @@ var BringgSDK = (function () {
       window.resizeMapByMarkers(window.gmap, window.markerLocation, window.destinationLocation);
     };
 
-    module._socket.on(WAY_POINT_DONE_EVENT, onWayPointDone);
-    module._socket.on(WAY_POINT_ETA_UPDATE_EVENT, onWayPointEtaUpdated);
-    module._socket.on(WAY_POINT_LOCATION_UPDATE_EVENT, onWayPointLocationUpdated);
-    module._socket.on(ORDER_DONE_EVENT, onWayPointDone);
-    module._socket.on(ORDER_UPDATE_EVENT, module._onOrderUpdate);
-    module._socket.on(LOCATION_UPDATE_EVENT, onLocationSocketUpdated);
+    module._safeSubscribe(WAY_POINT_DONE_EVENT, onWayPointDone);
+    module._safeSubscribe(WAY_POINT_ETA_UPDATE_EVENT, onWayPointEtaUpdated);
+    module._safeSubscribe(WAY_POINT_LOCATION_UPDATE_EVENT, onWayPointLocationUpdated);
+    module._safeSubscribe(ORDER_DONE_EVENT, onWayPointDone);
+    module._safeSubscribe(ORDER_UPDATE_EVENT, module._onOrderUpdate);
+    module._safeSubscribe(LOCATION_UPDATE_EVENT, onLocationSocketUpdated);
   };
 
   module._onSocketConnected = function() {
