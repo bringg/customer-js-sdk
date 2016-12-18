@@ -9,4 +9,6 @@ bower_components
 /.vimrc
 /.ackrc
 /coverage
+/junit_results
 npm-debug.log
+

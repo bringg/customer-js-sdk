@@ -1,0 +1,17 @@
+machine:
+  node:
+    version: 4.6.0
+  environment:
+    PATH: ${PATH}:${HOME}/${CIRCLE_PROJECT_REPONAME}/node_modules/.bin
+
+checkout:
+  post:
+    - npm install
+    - npm install -g bower grunt-cli
+    - bower install
+
+test:
+  post:
+    - mkdir -p $CIRCLE_ARTIFACTS/coverage
+    - mv coverage/ $CIRCLE_ARTIFACTS/coverage
+    - mv junit_results/ $CIRCLE_TEST_REPORTS/
