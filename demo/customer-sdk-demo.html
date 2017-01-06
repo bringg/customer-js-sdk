@@ -20,10 +20,16 @@
 
   <script type="text/javascript">
     var customer_access_token = null;
-    var my_order_uuid = 'PLACE_A_SAMPLE_ORDER_UUID_HERE'; //note that this requires the 'UUID' attribute and not the 'ID'.
+
+    /*
+     * Getting the order uuid from the url, for example:
+     *  customer-sdk-demo.html?uuid=MY_UUID
+     */
+    var my_order_uuid = location.search.substring('?uuid='.length);
+
 
     function orderUpdateCb(order){
-      console.log('orderUpdateCb' + JSON.stringify(order));
+      console.log('orderUpdateCb', order);
       // do something with order here
     }
 
