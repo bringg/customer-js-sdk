@@ -1251,11 +1251,11 @@ var BringgSDK = (function () {
       }
     };
 
-    var onWayPointDone = function (){
+    var onWayPointDone = function (eventData) {
       log('way point done');
 
       if (callbacks.driverLeftCb) {
-        callbacks.driverLeftCb();
+        callbacks.driverLeftCb(eventData);
       }
     };
 
