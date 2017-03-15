@@ -22,7 +22,7 @@ var BringgSDK = (function () {
   var REAL_TIME_STAGING = 'https://staging-realtime.bringg.com/';
 
   var REAL_TIME_OPTIONS = {
-    'END_POINT' : REAL_TIME_PRODUCTION,
+    'END_POINT': REAL_TIME_PRODUCTION,
     'SECURED_SOCKETS': true,
     'SOCKET_WEBSOCKET_PORT': 443,
     'SOCKET_XHR_PORT': 8443
@@ -112,9 +112,9 @@ var BringgSDK = (function () {
    */
   module.initializeBringg = function (params, initSuccessCb, initFailedCb) {
 
-    if (!params){
+    if (!params) {
       log('init failed : missing params');
-      if (initFailedCb){
+      if (initFailedCb) {
         initFailedCb({success: false, rc: module.RETURN_CODES.missing_params, error: 'missing params'});
       }
       return;
@@ -122,7 +122,7 @@ var BringgSDK = (function () {
 
     module._setCredentials(params);
 
-    if (initFailedCb){
+    if (initFailedCb) {
       callbacks.failedLoadingCb = initFailedCb;
     }
 
@@ -167,7 +167,7 @@ var BringgSDK = (function () {
    * @param onConnectCb - optional.
    * @param onDisconnectCb - optional
    */
-  module.connect = function(customerAccessToken, onConnectCb, onDisconnectCb){
+  module.connect = function (customerAccessToken, onConnectCb, onDisconnectCb) {
     module._credentials.customer_access_token = customerAccessToken;
     module.setConnectionCallbacks(onConnectCb, onDisconnectCb);
     module._connectSocket();
@@ -198,11 +198,11 @@ var BringgSDK = (function () {
       }
     };
 
-  module.isConnected = function(){
+  module.isConnected = function () {
     return connected;
   };
 
-  module.setConfiguration = function(value){
+  module.setConfiguration = function (value) {
     configuration = value;
   };
 
@@ -216,9 +216,9 @@ var BringgSDK = (function () {
    * @param params
    * @param callback
    */
-  module.watchOrder = function(params, callback){
+  module.watchOrder = function (params, callback) {
     log('watching order :' + JSON.stringify(params));
-    module._socket.emit('watch order', params, function(result){
+    module._socket.emit('watch order', params, function (result) {
       module._watchOrderCb(result, callback);
 
       // if we succeeded then use the watch params to fill missing config params
@@ -232,7 +232,7 @@ var BringgSDK = (function () {
     });
   };
 
-  module._watchOrderCb = function(result, callback){
+  module._watchOrderCb = function (result, callback) {
     if (result) {
 
       // cache the params returned from the watch in any case if we received data (even if expired)
@@ -242,25 +242,19 @@ var BringgSDK = (function () {
         module._onNewConfiguration(result.shared_location);
       }
 
-      if (result.expired) {
-        log('share expired');
-        configuration.expired = true;
-        if (callback){
-          callback({success: false, rc: module.RETURN_CODES.expired, error: 'expired'})
-        }
-      } else if (result.success){
+      if (result.success) {
         watchingOrder = true;
 
         if (callback) {
           callback(result);
         }
-      } else if (callback){
+      } else if (callback) {
         callback({success: false, rc: module.RETURN_CODES.unknown_reason, error: 'watch order failed - unknown reason'})
       }
 
     } else {
       log('watch order: no result');
-      if (callback){
+      if (callback) {
         callback({success: false, rc: module.RETURN_CODES.no_response, error: 'watch order failed - no response'})
       }
     }
@@ -271,16 +265,16 @@ var BringgSDK = (function () {
    * @param params
    * @param callback
    */
-  module.watchDriver = function(params, callback){
+  module.watchDriver = function (params, callback) {
     log('watching driver :' + JSON.stringify(params));
-    module._socket.emit('watch driver', params, function(result){
+    module._socket.emit('watch driver', params, function (result) {
       module._watchDriverCb(result, callback);
     });
 
     fillConfig(params);
   };
 
-  module._watchDriverCb = function(result, callback){
+  module._watchDriverCb = function (result, callback) {
     if (result && result.success) {
       watchingDriver = true;
 
@@ -290,8 +284,12 @@ var BringgSDK = (function () {
       if (callback) {
         callback(result)
       }
-    } else if (callback){
-      callback({success: false, rc: result ? module.RETURN_CODES.unknown_reason : module.RETURN_CODES.no_response, error: 'failed watching driver'})
+    } else if (callback) {
+      callback({
+        success: false,
+        rc: result ? module.RETURN_CODES.unknown_reason : module.RETURN_CODES.no_response,
+        error: 'failed watching driver'
+      })
     }
   };
 
@@ -300,26 +298,30 @@ var BringgSDK = (function () {
    * @param params
    * @param callback
    */
-  module.watchWayPoint = function(params, callback){
+  module.watchWayPoint = function (params, callback) {
     log('watching waypoint :' + JSON.stringify(params));
-    module._socket.emit('watch way point', params, function(result){
+    module._socket.emit('watch way point', params, function (result) {
       module._watchWayPointCb(result, callback);
     });
   };
 
-  module._watchWayPointCb = function(result, callback){
+  module._watchWayPointCb = function (result, callback) {
     if (result && result.success) {
       watchingWayPoint = true;
 
       if (callback) {
         callback(result);
       }
-    } else if (callback){
-      callback({success: false, rc: result ? module.RETURN_CODES.unknown_reason : module.RETURN_CODES.no_response, error: 'failed watching waypoint'})
+    } else if (callback) {
+      callback({
+        success: false,
+        rc: result ? module.RETURN_CODES.unknown_reason : module.RETURN_CODES.no_response,
+        error: 'failed watching waypoint'
+      })
     }
   };
 
-  module._connectCustomer = function(){
+  module._connectCustomer = function () {
     if (module._credentials !== {}) {
       log('calling connect customer with ' + JSON.stringify(module._credentials));
       module._socket.emit('customer connect', module._credentials, function (result) {
@@ -371,8 +373,8 @@ var BringgSDK = (function () {
   };
 
   module.submitRatingReason = function (ratingReasonId) {
-    if (configuration && configuration.rating_reason){
-      if (configuration.rating_reason.rating_reason_url){
+    if (configuration && configuration.rating_reason) {
+      if (configuration.rating_reason.rating_reason_url) {
         $.post(configuration.rating_reason.rating_reason_url, {
           rating_reason_id: ratingReasonId,
           token: configuration.rating_token
@@ -404,7 +406,7 @@ var BringgSDK = (function () {
     if (!note) {
       return;
     }
-    if (configuration && configuration.note_url && configuration.note_token){
+    if (configuration && configuration.note_url && configuration.note_token) {
       $.post(configuration.note_url, {
         note: note,
         token: configuration.note_token
@@ -433,7 +435,7 @@ var BringgSDK = (function () {
    * @param failureCb
    */
   module.submitLocation = function (position, successCb, failureCb) {
-    if (configuration && configuration.find_me_url && configuration.find_me_token){
+    if (configuration && configuration.find_me_url && configuration.find_me_token) {
       $.post(configuration.find_me_url, {
         position: position,
         find_me_token: configuration.find_me_token
@@ -449,7 +451,7 @@ var BringgSDK = (function () {
       });
     } else {
       log('submit location - invalid configuration');
-      if (failureCb){
+      if (failureCb) {
         failureCb();
       }
     }
@@ -507,70 +509,70 @@ var BringgSDK = (function () {
     return lastEta;
   };
 
-  module.getLastETAUpdateTime = function() {
+  module.getLastETAUpdateTime = function () {
     return lastETAUpdate;
   };
 
-  module.getETAOrigin = function() {
+  module.getETAOrigin = function () {
     return etaFromServer ? 'server' : 'client';
   };
 
-  module.getDriverActivity = function() {
+  module.getDriverActivity = function () {
     return driverActivity;
   };
 
-  module.setOrderUpdateCb = function(cb){
+  module.setOrderUpdateCb = function (cb) {
     callbacks.orderUpdateCb = cb;
   };
 
-  module.setLocationUpdateCb = function(cb) {
+  module.setLocationUpdateCb = function (cb) {
     callbacks.locationUpdateCb = cb;
   };
 
-  module.setETAUpdateCb = function(cb) {
+  module.setETAUpdateCb = function (cb) {
     callbacks.etaUpdateCb = cb;
   };
 
-  module.setETAMethodChangedCb = function(cb) {
+  module.setETAMethodChangedCb = function (cb) {
     callbacks.etaMethodChangedCb = cb;
   };
 
-  module.getETAMethod = function() {
+  module.getETAMethod = function () {
     return etaMethod;
   };
 
-  module.setETAMethod = function(newETAMethod) {
+  module.setETAMethod = function (newETAMethod) {
     etaMethod = newETAMethod;
   };
 
-  module.setDestination = function(lat, lng){
+  module.setDestination = function (lat, lng) {
     destination_lat = lat;
     destination_lng = lng;
     destination = new google.maps.LatLng(lat, lng);
   };
 
-  module.setConnectionCallbacks = function(onConnectCb, onDisconnectCb){
-    if (onConnectCb){
+  module.setConnectionCallbacks = function (onConnectCb, onDisconnectCb) {
+    if (onConnectCb) {
       callbacks.onConnectCb = onConnectCb;
     }
-    if (onDisconnectCb){
+    if (onDisconnectCb) {
       callbacks.onDisconnectCb = onDisconnectCb;
     }
   };
 
-  module.setAutoWatchDriver = function(enable){
+  module.setAutoWatchDriver = function (enable) {
     shouldAutoWatchDriver = enable
   };
 
-  module.setAutoWatchWayPoint = function(enable){
+  module.setAutoWatchWayPoint = function (enable) {
     shouldAutoWatchWayPoint = enable
   };
 
-  module.isWatchingDriver = function(){
+  module.isWatchingDriver = function () {
     return watchingDriver;
   };
 
-  module.isWatchingOrder = function(){
+  module.isWatchingOrder = function () {
     return watchingOrder;
   };
 
@@ -580,37 +582,37 @@ var BringgSDK = (function () {
   //
   //========================================================================
 
-  function getRealTimeEndPoint(){
+  function getRealTimeEndPoint() {
     return window.MONITOR_END_POINT ?
       window.MONITOR_END_POINT.indexOf('/', window.MONITOR_END_POINT.length - 1) !== -1 ? window.MONITOR_END_POINT : window.MONITOR_END_POINT + '/'
       : REAL_TIME_OPTIONS.END_POINT;
   }
 
-  function getWebSocketPort(){
+  function getWebSocketPort() {
     return window.SOCKET_WEBSOCKET_PORT ? window.SOCKET_WEBSOCKET_PORT
       : isLocal() ? '3030'
-      : REAL_TIME_OPTIONS.SOCKET_WEBSOCKET_PORT;
+        : REAL_TIME_OPTIONS.SOCKET_WEBSOCKET_PORT;
   }
 
-  function getXHRPort(){
+  function getXHRPort() {
     return window.SOCKET_XHR_PORT ? window.SOCKET_XHR_PORT
       : isLocal() ? '3030'
-      : REAL_TIME_OPTIONS.SOCKET_XHR_PORT;
+        : REAL_TIME_OPTIONS.SOCKET_XHR_PORT;
   }
 
-  function getSecuredSocketSetup(){
+  function getSecuredSocketSetup() {
     return window.SECURED_SOCKETS ? window.SECURED_SOCKETS
       : isLocal() ? false
-      : REAL_TIME_OPTIONS.SECURED_SOCKETS;
+        : REAL_TIME_OPTIONS.SECURED_SOCKETS;
   }
 
   // ========================================================================
 
-  module._setWatchingDriver = function(isWatching){
+  module._setWatchingDriver = function (isWatching) {
     watchingDriver = isWatching;
   };
 
-  module._setWatchingOrder = function(isWatching){
+  module._setWatchingOrder = function (isWatching) {
     watchingOrder = isWatching;
   };
 
@@ -618,7 +620,7 @@ var BringgSDK = (function () {
    * connect the socket and registers all connection listeners.
    * if a previous connection exists it closes it first.
    */
-  module._connectSocket = function() {
+  module._connectSocket = function () {
     module._closeSocketConnection();
 
     module._socket = io(getRealTimeEndPoint(), {
@@ -637,8 +639,8 @@ var BringgSDK = (function () {
   /**
    * closes the socket connection and remove all listeners. does not disconnects later.
    */
-  module._closeSocketConnection = function(){
-    if (module._socket){
+  module._closeSocketConnection = function () {
+    if (module._socket) {
       module._socket.disconnect();
       module._socket.removeAllListeners();
       module._socket = null;
@@ -652,7 +654,7 @@ var BringgSDK = (function () {
    *
    */
   module._onETAIntervalSet = function () {
-    if (!watchingDriver){
+    if (!watchingDriver) {
       log('eta - no current tracking, stopping.');
       clearInterval(etaInterval);
       return;
@@ -681,7 +683,7 @@ var BringgSDK = (function () {
     }
   };
 
-  module._onETATimeoutSet = function(){
+  module._onETATimeoutSet = function () {
     if (lastETAUpdate === null && watchingDriver) {
       log('no lastETAUpdate after timeout, calculating');
       calculateETA(configuration.current_lat, configuration.current_lng, destination_lat, destination_lng, destination, function () {
@@ -694,7 +696,7 @@ var BringgSDK = (function () {
    * set timer interval for calculating eta.
    * will only calculate if in the state of watching driver's progress.
    */
-  module._setETACalcInterval = function(timeoutForETACalculation){
+  module._setETACalcInterval = function (timeoutForETACalculation) {
     etaInterval = setInterval(module._onETAIntervalSet, timeoutForETACalculation);
     setTimeout(module._onETATimeoutSet, 3000);
   };
@@ -703,11 +705,11 @@ var BringgSDK = (function () {
    * validates configuration and
    * @param configuration
    */
-  module._onNewConfiguration = function(configuration){
+  module._onNewConfiguration = function (configuration) {
 
     if (configuration.expired === undefined || !configuration.expired || configuration.expired === 'false') {
 
-      if (configuration.done === undefined || !configuration.done || configuration.done === 'false'){
+      if (configuration.done === undefined || !configuration.done || configuration.done === 'false') {
         etaFromServer = configuration.eta ? true : false;
 
         if (configuration.destination_lat && configuration.destination_lng) {
@@ -752,7 +754,7 @@ var BringgSDK = (function () {
    *
    * @param params
    */
-  module._setCredentials = function(params){
+  module._setCredentials = function (params) {
     if (params.token) {
       module._credentials.token = params.token;
     }
@@ -813,7 +815,7 @@ var BringgSDK = (function () {
     }
   }
 
-  module._setDriverActivity = function(newActivity) {
+  module._setDriverActivity = function (newActivity) {
     driverActivity = google.maps.TravelMode.DRIVING;
 
     switch (newActivity) {
@@ -848,7 +850,7 @@ var BringgSDK = (function () {
     });
   }
 
-  module._setPollingInterval = function(){
+  module._setPollingInterval = function () {
 
     if (pollingInterval) {
       clearInterval(pollingInterval);
@@ -883,12 +885,12 @@ var BringgSDK = (function () {
     }, timeoutForRestPoll);
   };
 
-  function getShareConfig(uuid, callback, errorCallback){
+  function getShareConfig(uuid, callback, errorCallback) {
     log('Getting shared config for uuid: ' + uuid);
     $.getJSON(getRealTimeEndPoint() + 'shared/' + uuid + '?full=true', callback).error(errorCallback);
   }
 
-  function getSharedLocation(uuid){
+  function getSharedLocation(uuid) {
     log('Getting location via REST for uuid: ' + uuid);
 
     $.getJSON(getRealTimeEndPoint() + 'shared/' + uuid + '/location/', function (result) {
@@ -905,11 +907,11 @@ var BringgSDK = (function () {
     });
   }
 
-  function getOrderViaRest(orderUuid, shareUuid){
+  function getOrderViaRest(orderUuid, shareUuid) {
     log('Getting order via REST with share uuid: ' + shareUuid);
     $.getJSON(getRealTimeEndPoint() + 'watch/shared/' + shareUuid + '?order_uuid=' + orderUuid, function (result) {
       log('Rest order update: ' + JSON.stringify(result));
-      if (result.success && result.order_update){
+      if (result.success && result.order_update) {
         module._onOrderUpdate(result.order_update);
       }
     }).error(function (jqXHR, textStatus, errorThrown) {
@@ -917,11 +919,11 @@ var BringgSDK = (function () {
     });
   }
 
-  function createShareForOrderViaRest(orderUuid){
+  function createShareForOrderViaRest(orderUuid) {
     log('creating share via REST for order_uuid: ' + orderUuid);
     $.getJSON(getRealTimeEndPoint() + 'shared/orders?order_uuid=' + orderUuid, function (result) {
       log('Rest order update: ' + JSON.stringify(result));
-      if (result.success && result.order_update){
+      if (result.success && result.order_update) {
         module._onOrderUpdate(result.order_update);
       }
     }).error(function (jqXHR, textStatus, errorThrown) {
@@ -929,11 +931,11 @@ var BringgSDK = (function () {
     });
   }
 
-  function getSharedOrder(orderUuid, shareUuid){
+  function getSharedOrder(orderUuid, shareUuid) {
     // if we already have shared location
-    if (orderUuid && shareUuid){
+    if (orderUuid && shareUuid) {
       getOrderViaRest(orderUuid, shareUuid);
-    } else if (orderUuid){ // if we don't have shared location we have to watch order first
+    } else if (orderUuid) { // if we don't have shared location we have to watch order first
       createShareForOrderViaRest(orderUuid);
     } else {
       log('no shared nor order uuid for polling');
@@ -942,7 +944,7 @@ var BringgSDK = (function () {
 
   // =========================================
 
-  function setLocationAnimationInterval(){
+  function setLocationAnimationInterval() {
     locationFramesInterval = setInterval(function () {
       while (locationFrames.length > 2 * MAX_LOCATION_POINTS_FOR_UPDATE) {
         locationFrames.splice(0, MAX_LOCATION_POINTS_FOR_UPDATE - 1);
@@ -975,16 +977,17 @@ var BringgSDK = (function () {
     }, animationInterval);
   }
 
-  function onETACalculated(response, status){
+  function onETACalculated(response, status) {
 
   }
+
   function calculateETA(originLat, originLng, destLat, destLng, destAddress, onETACalculatedCallback) {
-    if (!watchingDriver){
+    if (!watchingDriver) {
       return;
     }
     log('calculating ETA.. (' + originLat + ',' + originLng + ') to (' + destLat + ',' + destLng + ')');
 
-    if (!originLat || !originLng || !destLat || !destLng){
+    if (!originLat || !originLng || !destLat || !destLng) {
       return;
     }
 
@@ -1065,7 +1068,7 @@ var BringgSDK = (function () {
       if (callbacks.etaUpdateCb) {
         callbacks.etaUpdateCb(lastEta);
       }
-    } else if (destination && origin){
+    } else if (destination && origin) {
       var service = new google.maps.DistanceMatrixService();
       service.getDistanceMatrix(
         {
@@ -1108,7 +1111,7 @@ var BringgSDK = (function () {
           previousCurrLng = fromLng,
           previousCurrLat = fromLat;
 
-        if (!fromLat || !fromLng){
+        if (!fromLat || !fromLng) {
           log('no from coordinates');
 
           if (callbacks.locationUpdateCb) {
@@ -1145,47 +1148,47 @@ var BringgSDK = (function () {
     }
   }
 
-  module._onOrderUpdate = function(order){
+  module._onOrderUpdate = function (order) {
     fillConfig(order);
 
     //update relative paths
-    if(order.customer){
+    if (order.customer) {
       order.customer.image = _updateAssetPath(order.customer.image);
     }
 
-    if(order.driver){
+    if (order.driver) {
       order.driver.profile_image = _updateAssetPath(order.driver.profile_image);
     }
 
-    if (!configuration.order_uuid && order.uuid){
+    if (!configuration.order_uuid && order.uuid) {
       configuration.order_uuid = order.uuid;
     }
 
     lastEventTime = new Date().getTime();
 
-    if (!watchingDriver && shouldAutoWatchDriver && order.status === 2 && configuration.share_uuid && configuration.driver_uuid){
-      module.watchDriver({share_uuid: configuration.share_uuid, driver_uuid : configuration.driver_uuid});
+    if (!watchingDriver && shouldAutoWatchDriver && order.status === 2 && configuration.share_uuid && configuration.driver_uuid) {
+      module.watchDriver({share_uuid: configuration.share_uuid, driver_uuid: configuration.driver_uuid});
     }
 
-    if(callbacks.orderUpdateCb){
+    if (callbacks.orderUpdateCb) {
       callbacks.orderUpdateCb(order);
     }
   };
 
-  function fillConfig(params){
-    if (!configuration){
+  function fillConfig(params) {
+    if (!configuration) {
       configuration = {};
     }
-    if (!configuration.order_uuid && params.order_uuid){
+    if (!configuration.order_uuid && params.order_uuid) {
       configuration.order_uuid = params.order_uuid;
     }
-    if (!configuration.share_uuid && params.share_uuid){
+    if (!configuration.share_uuid && params.share_uuid) {
       configuration.share_uuid = params.share_uuid;
     }
-    if (!configuration.driver_uuid && params.driver_uuid){
+    if (!configuration.driver_uuid && params.driver_uuid) {
       configuration.driver_uuid = params.driver_uuid;
     }
-    if (!configuration.way_point_id && params.active_way_point_id){
+    if (!configuration.way_point_id && params.active_way_point_id) {
       configuration.way_point_id = params.active_way_point_id;
     }
   }
@@ -1211,7 +1214,7 @@ var BringgSDK = (function () {
    *
    * @private
    */
-  module._safeSubscribe = function(event, callback) {
+  module._safeSubscribe = function (event, callback) {
     module._socket.off(event);
     module._socket.on(event, callback);
   };
@@ -1220,7 +1223,7 @@ var BringgSDK = (function () {
    *
    * @private
    */
-  module._addSocketEventListeners = function(){
+  module._addSocketEventListeners = function () {
     module._safeSubscribe('activity change', function (data) {
       log('activity changed');
       lastEventTime = new Date().getTime();
@@ -1249,7 +1252,7 @@ var BringgSDK = (function () {
       }
     };
 
-    var onWayPointDone = function (){
+    var onWayPointDone = function () {
       log('way point done');
 
       module._closeSocketConnection();
@@ -1287,13 +1290,13 @@ var BringgSDK = (function () {
     module._safeSubscribe(LOCATION_UPDATE_EVENT, onLocationSocketUpdated);
   };
 
-  module._onSocketConnected = function() {
+  module._onSocketConnected = function () {
     connected = true;
 
     // try to establish a credential based socket connection.
     module._connectCustomer();
 
-    if (callbacks.onConnectCb){
+    if (callbacks.onConnectCb) {
       callbacks.onConnectCb();
     }
 
@@ -1347,16 +1350,16 @@ var BringgSDK = (function () {
     watchingOrder = false;
     watchingWayPoint = false;
 
-    if (callbacks.onDisconnectCb){
+    if (callbacks.onDisconnectCb) {
       callbacks.onDisconnectCb();
     }
   }
 
-  function onSocketError(data){
+  function onSocketError(data) {
     log('module._socket error: ' + JSON.stringify(data));
   }
 
-  function onSocketConnecting(transport){
+  function onSocketConnecting(transport) {
     log('module._socket connecting with ' + transport);
   }
 
@@ -1365,12 +1368,12 @@ var BringgSDK = (function () {
   // UTILS
   // =======================================
 
-  function isLocal(){
+  function isLocal() {
     return getRealTimeEndPoint().indexOf('localhost') != -1;
   }
 
   function log(text) {
-    if (isLocal()){
+    if (isLocal()) {
       console.log(text);
     }
   }
@@ -1422,7 +1425,7 @@ var BringgSDK = (function () {
   }
 
   function _updateAssetPath(path) {
-    if(!path){
+    if (!path) {
       return path;
     }
 

@@ -167,8 +167,9 @@ describe('BringgSDK', function () {
 
           it('on expired', function(){
             var callback = jasmine.createSpy('callback');
-            BringgSDK._watchOrderCb({expired: true}, callback);
-            expect(callback).toHaveBeenCalledWith({success: false, rc: BringgSDK.RETURN_CODES.expired, error: 'expired'});
+            var result = {success: true,expired: true};
+            BringgSDK._watchOrderCb(result, callback);
+            expect(callback).toHaveBeenCalledWith(result);
           });
 
           it('on success', function(){
