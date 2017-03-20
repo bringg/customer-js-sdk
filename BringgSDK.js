@@ -444,7 +444,7 @@ var BringgSDK = (function () {
           successCb(response);
         }
       }).fail(function () {
-        log('submit location - unknwon error');
+        log('submit location - unknown error');
         if (failureCb) {
           failureCb();
         }
@@ -834,7 +834,7 @@ var BringgSDK = (function () {
         driverActivity = google.maps.TravelMode.DRIVING;
         break;
     }
-  }
+  };
 
   function customerAlert(options) {
     if (!configuration.alerting_token) {
