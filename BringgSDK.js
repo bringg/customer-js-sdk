@@ -217,12 +217,26 @@ var BringgSDK = (function () {
    * @param callback
    */
   module.watchOrder = function (params, callback) {
+
+    if (!params || !params.order_uuid || (!params.share_uuid && !params.customer_access_token)){
+      log('watchOrder: invalid params' + JSON.stringify(params));
+      if (callback){
+          callback({
+            success: false,
+            rc: module.RETURN_CODES.missing_params,
+            error: 'watch order failed - params must contain order_uuid and either share_uuid or customer_access_token'
+          });
+      }
+      return;
+    }
+
     log('watching order :' + JSON.stringify(params));
     module._socket.emit('watch order', params, function (result) {
       module._watchOrderCb(result, callback);
 
-      // if we succeeded then use the watch params to fill missing config params
+      // if we succeeded then use the watch params to fill missing config params and credentials
       fillConfig(params);
+      module._setCredentials(params);
 
       if (!configuration.expired) {
         if (!watchingWayPoint && shouldAutoWatchWayPoint && configuration.way_point_id && configuration.order_uuid) {
@@ -266,12 +280,25 @@ var BringgSDK = (function () {
    * @param callback
    */
   module.watchDriver = function (params, callback) {
+    if (!params || !params.driver_uuid || (!params.share_uuid && !params.customer_access_token)){
+        log('watchDriver: invalid params' + JSON.stringify(params));
+        if (callback){
+            callback({
+                success: false,
+                rc: module.RETURN_CODES.missing_params,
+                error: 'watch driver failed - params must contain driver_uuid and either share_uuid or customer_access_token'
+            });
+        }
+        return;
+    }
+
     log('watching driver :' + JSON.stringify(params));
     module._socket.emit('watch driver', params, function (result) {
       module._watchDriverCb(result, callback);
     });
 
     fillConfig(params);
+    module._setCredentials(params);
   };
 
   module._watchDriverCb = function (result, callback) {
@@ -863,7 +890,11 @@ var BringgSDK = (function () {
         var minTimeToWait = connected ? timeoutForRestIfSocketConnected : timeoutForRestPoll;
         if (timeSinceUpdate > minTimeToWait) {
           // poll order anyway
-          getSharedOrder(configuration.order_uuid, configuration.share_uuid);
+          getSharedOrder({
+              order_uuid: configuration.order_uuid,
+              share_uuid: configuration.share_uuid,
+              customer_access_token: module._credentials.customer_access_token
+          });
 
           // poll location only if in correct state
           if (watchingDriver) {
@@ -919,9 +950,9 @@ var BringgSDK = (function () {
     });
   }
 
-  function createShareForOrderViaRest(orderUuid) {
+  function createShareForOrderViaRest(orderUuid, customerAccessToken) {
     log('creating share via REST for order_uuid: ' + orderUuid);
-    $.getJSON(getRealTimeEndPoint() + 'shared/orders?order_uuid=' + orderUuid, function (result) {
+    $.getJSON(getRealTimeEndPoint() + 'shared/orders?order_uuid=' + orderUuid + '&customer_access_token=' + customerAccessToken, function (result) {
       log('Rest order update: ' + JSON.stringify(result));
       if (result.success && result.order_update) {
         module._onOrderUpdate(result.order_update);
@@ -931,14 +962,19 @@ var BringgSDK = (function () {
     });
   }
 
-  function getSharedOrder(orderUuid, shareUuid) {
+  function getSharedOrder(params) {
+    if (!params || !params.order_uuid) {
+      log('no order uuid for polling');
+      return;
+    }
+
     // if we already have shared location
-    if (orderUuid && shareUuid) {
-      getOrderViaRest(orderUuid, shareUuid);
-    } else if (orderUuid) { // if we don't have shared location we have to watch order first
-      createShareForOrderViaRest(orderUuid);
+    if (params.share_uuid) {
+      getOrderViaRest(params.order_uuid, params.share_uuid);
+    } else if (params.customer_access_token) {
+      createShareForOrderViaRest(params.order_uuid, params.customer_access_token);
     } else {
-      log('no shared nor order uuid for polling');
+      log('no 2nd identifier in params for polling');
     }
   }
 
