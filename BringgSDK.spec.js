@@ -1,5 +1,9 @@
 'use strict';
 
+beforeEach(function () {
+    BringgSDK._socket = null;
+});
+
 describe('BringgSDK', function () {
   it('check the API of the service', function () {
     expect(BringgSDK._socket).toBeNull();
@@ -151,7 +155,85 @@ describe('BringgSDK', function () {
 
   describe('watch', function(){
     describe('order', function(){
-      describe('module callback', function(){
+      it('should call external callback if missing params', function(){
+          var callback = jasmine.createSpy('callback');
+          var socket = { emit: function (){} };
+          spyOn(socket, 'emit');
+
+          BringgSDK._socket = socket;
+
+          BringgSDK.watchOrder(undefined, callback);
+
+          expect(BringgSDK._socket.emit).not.toHaveBeenCalled();
+          expect(callback).toHaveBeenCalledWith({
+              success: false,
+              rc: BringgSDK.RETURN_CODES.missing_params,
+              error: 'watch order failed - missing params'
+          });
+      });
+
+      it('should call external callback if no order_uuid', function(){
+          var callback = jasmine.createSpy('callback');
+          var socket = { emit: function (){} };
+          spyOn(socket, 'emit');
+
+          BringgSDK._socket = socket;
+          BringgSDK.watchOrder({}, callback);
+
+          expect(BringgSDK._socket.emit).not.toHaveBeenCalled();
+          expect(callback).toHaveBeenCalledWith({
+              success: false,
+              rc: BringgSDK.RETURN_CODES.missing_params,
+              error: 'watch order failed - missing params'
+          });
+      });
+
+      it('should call external callback if no share_uuid and no customer_access_token', function(){
+          var callback = jasmine.createSpy('callback');
+          var socket = { emit: function (){} };
+          spyOn(socket, 'emit');
+
+          BringgSDK._socket = socket;
+
+          BringgSDK.watchOrder({order_uuid: faker.random.number()}, callback);
+
+          expect(BringgSDK._socket.emit).not.toHaveBeenCalled();
+          expect(callback).toHaveBeenCalledWith({
+              success: false,
+              rc: BringgSDK.RETURN_CODES.missing_params,
+              error: 'watch order failed - missing params'
+          });
+      });
+
+      it('should call socket.emit if order_uuid and share_uuid', function(){
+          var callback = jasmine.createSpy('callback');
+          var socket = { emit: function (){} };
+          spyOn(socket, 'emit');
+
+          BringgSDK._socket = socket;
+
+          var params = {order_uuid: faker.random.number(), share_uuid: faker.random.number()};
+          BringgSDK.watchOrder(params, callback);
+          expect(BringgSDK._socket.emit).toHaveBeenCalled();
+          expect(BringgSDK._socket.emit.calls.mostRecent().args[0]).toEqual('watch order');
+          expect(BringgSDK._socket.emit.calls.mostRecent().args[1]).toEqual(params);
+      });
+
+      it('should call socket.emit if order_uuid and customer_access_token', function(){
+          var callback = jasmine.createSpy('callback');
+          var socket = { emit: function (){} };
+          spyOn(socket, 'emit');
+
+          BringgSDK._socket = socket;
+
+          var params = {order_uuid: faker.random.number(), customer_access_token: faker.random.number()};
+          BringgSDK.watchOrder(params, callback);
+          expect(BringgSDK._socket.emit).toHaveBeenCalled();
+          expect(BringgSDK._socket.emit.calls.mostRecent().args[0]).toEqual('watch order');
+          expect(BringgSDK._socket.emit.calls.mostRecent().args[1]).toEqual(params);
+      });
+
+      describe('callback', function(){
         describe('should use external callback', function(){
           it('on no response', function(){
             var callback = jasmine.createSpy('callback');
@@ -190,8 +272,86 @@ describe('BringgSDK', function () {
     });
 
     describe('driver', function(){
-      describe('module callback', function(){
-        it('should use callback on failure', function(){
+      it('should call external callback if missing params', function(){
+          var callback = jasmine.createSpy('callback');
+          var socket = { emit: function (){} };
+          spyOn(socket, 'emit');
+
+          BringgSDK._socket = socket;
+
+          BringgSDK.watchDriver(undefined, callback);
+
+          expect(BringgSDK._socket.emit).not.toHaveBeenCalled();
+          expect(callback).toHaveBeenCalledWith({
+              success: false,
+              rc: BringgSDK.RETURN_CODES.missing_params,
+              error: 'watch driver failed - missing params'
+          });
+      });
+
+      it('should call external callback if no order_uuid', function(){
+          var callback = jasmine.createSpy('callback');
+          var socket = { emit: function (){} };
+          spyOn(socket, 'emit');
+
+          BringgSDK._socket = socket;
+          BringgSDK.watchDriver({}, callback);
+
+          expect(BringgSDK._socket.emit).not.toHaveBeenCalled();
+          expect(callback).toHaveBeenCalledWith({
+              success: false,
+              rc: BringgSDK.RETURN_CODES.missing_params,
+              error: 'watch driver failed - missing params'
+          });
+      });
+
+      it('should call external callback if no share_uuid and no customer_access_token', function(){
+          var callback = jasmine.createSpy('callback');
+          var socket = { emit: function (){} };
+          spyOn(socket, 'emit');
+
+          BringgSDK._socket = socket;
+
+          BringgSDK.watchDriver({driver_uuid: faker.random.number()}, callback);
+
+          expect(BringgSDK._socket.emit).not.toHaveBeenCalled();
+          expect(callback).toHaveBeenCalledWith({
+              success: false,
+              rc: BringgSDK.RETURN_CODES.missing_params,
+              error: 'watch driver failed - missing params'
+          });
+      });
+
+      it('should call socket.emit if order_uuid and share_uuid', function(){
+          var callback = jasmine.createSpy('callback');
+          var socket = { emit: function (){} };
+          spyOn(socket, 'emit');
+
+          BringgSDK._socket = socket;
+
+          var params = {driver_uuid: faker.random.number(), share_uuid: faker.random.number()};
+          BringgSDK.watchDriver(params, callback);
+          expect(BringgSDK._socket.emit).toHaveBeenCalled();
+          expect(BringgSDK._socket.emit.calls.mostRecent().args[0]).toEqual('watch driver');
+          expect(BringgSDK._socket.emit.calls.mostRecent().args[1]).toEqual(params);
+      });
+
+      it('should call socket.emit if order_uuid and customer_access_token', function(){
+          var callback = jasmine.createSpy('callback');
+          var socket = { emit: function (){} };
+          spyOn(socket, 'emit');
+
+          BringgSDK._socket = socket;
+
+          var params = {driver_uuid: faker.random.number(), customer_access_token: faker.random.number()};
+          BringgSDK.watchDriver(params, callback);
+          expect(BringgSDK._socket.emit).toHaveBeenCalled();
+          expect(BringgSDK._socket.emit.calls.mostRecent().args[0]).toEqual('watch driver');
+          expect(BringgSDK._socket.emit.calls.mostRecent().args[1]).toEqual(params);
+      });
+
+      describe('callback', function(){
+        it('should use external callback on failure', function(){
           var callback = jasmine.createSpy('callback');
           BringgSDK._watchDriverCb({}, callback);
           expect(callback).toHaveBeenCalledWith({success: false, rc: BringgSDK.RETURN_CODES.unknown_reason, error: 'failed watching driver'});
@@ -200,7 +360,7 @@ describe('BringgSDK', function () {
           expect(callback).toHaveBeenCalledWith({success: false, rc: BringgSDK.RETURN_CODES.no_response, error: 'failed watching driver'});
         });
 
-        it('should use callback on success', function(){
+        it('should use external callback on success', function(){
           var callback = jasmine.createSpy('callback');
           var result = {success: true};
           BringgSDK._watchDriverCb(result, callback);
@@ -254,7 +414,7 @@ describe('BringgSDK', function () {
     });
   });
 
-  describe('on new configuration', function(){
+  describe('onNewConfiguration', function(){
     it('should set eta calc interval if already watching driver', function(){
       spyOn(BringgSDK, '_setETACalcInterval');
       spyOn(BringgSDK, '_setDriverActivity');
