@@ -224,7 +224,7 @@ var BringgSDK = (function () {
           callback({
             success: false,
             rc: module.RETURN_CODES.missing_params,
-            error: 'watch order failed - missing params'
+            error: 'watch order failed - params must contain order_uuid and either share_uuid or customer_access_token'
           });
       }
       return;
@@ -286,7 +286,7 @@ var BringgSDK = (function () {
             callback({
                 success: false,
                 rc: module.RETURN_CODES.missing_params,
-                error: 'watch driver failed - missing params'
+                error: 'watch driver failed - params must contain driver_uuid and either share_uuid or customer_access_token'
             });
         }
         return;
