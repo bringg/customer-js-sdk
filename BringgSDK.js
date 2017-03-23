@@ -218,13 +218,13 @@ var BringgSDK = (function () {
    */
   module.watchOrder = function (params, callback) {
 
-    if (!params || !params.order_uuid || (!params.share_uuid && !params.customer_access_token)){
+    if (!params || !params.order_uuid || (!params.share_uuid && !params.access_token)){
       log('watchOrder: invalid params' + JSON.stringify(params));
       if (callback){
           callback({
             success: false,
             rc: module.RETURN_CODES.missing_params,
-            error: 'watch order failed - params must contain order_uuid and either share_uuid or customer_access_token'
+            error: 'watch order failed - params must contain order_uuid and either share_uuid or access_token'
           });
       }
       return;
@@ -280,13 +280,13 @@ var BringgSDK = (function () {
    * @param callback
    */
   module.watchDriver = function (params, callback) {
-    if (!params || !params.driver_uuid || (!params.share_uuid && !params.customer_access_token)){
+    if (!params || !params.driver_uuid || (!params.share_uuid && !params.access_token)){
         log('watchDriver: invalid params' + JSON.stringify(params));
         if (callback){
             callback({
                 success: false,
                 rc: module.RETURN_CODES.missing_params,
-                error: 'watch driver failed - params must contain driver_uuid and either share_uuid or customer_access_token'
+                error: 'watch driver failed - params must contain driver_uuid and either share_uuid or access_token'
             });
         }
         return;
@@ -785,8 +785,8 @@ var BringgSDK = (function () {
     if (params.token) {
       module._credentials.token = params.token;
     }
-    if (params.customer_access_token) {
-      module._credentials.customer_access_token = params.customer_access_token;
+    if (params.access_token) {
+      module._credentials.customer_access_token = params.access_token;
     }
   };
 
@@ -893,7 +893,7 @@ var BringgSDK = (function () {
           getSharedOrder({
               order_uuid: configuration.order_uuid,
               share_uuid: configuration.share_uuid,
-              customer_access_token: module._credentials.customer_access_token
+              access_token: module._credentials.customer_access_token
           });
 
           // poll location only if in correct state
@@ -952,7 +952,7 @@ var BringgSDK = (function () {
 
   function createShareForOrderViaRest(orderUuid, customerAccessToken) {
     log('creating share via REST for order_uuid: ' + orderUuid);
-    $.getJSON(getRealTimeEndPoint() + 'shared/orders?order_uuid=' + orderUuid + '&customer_access_token=' + customerAccessToken, function (result) {
+    $.getJSON(getRealTimeEndPoint() + 'shared/orders?order_uuid=' + orderUuid + '&access_token=' + customerAccessToken, function (result) {
       log('Rest order update: ' + JSON.stringify(result));
       if (result.success && result.order_update) {
         module._onOrderUpdate(result.order_update);
@@ -971,8 +971,8 @@ var BringgSDK = (function () {
     // if we already have shared location
     if (params.share_uuid) {
       getOrderViaRest(params.order_uuid, params.share_uuid);
-    } else if (params.customer_access_token) {
-      createShareForOrderViaRest(params.order_uuid, params.customer_access_token);
+    } else if (params.access_token) {
+      createShareForOrderViaRest(params.order_uuid, params.access_token);
     } else {
       log('no 2nd identifier in params for polling');
     }
