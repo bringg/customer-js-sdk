@@ -20,10 +20,16 @@
 
   <script type="text/javascript">
     var customer_access_token = null;
-    var my_order_uuid = 'PLACE_A_SAMPLE_ORDER_UUID_HERE'; //note that this requires the 'UUID' attribute and not the 'ID'.
+
+    /*
+     * Getting the order uuid from the url, for example:
+     *  customer-sdk-demo.html?uuid=MY_UUID
+     */
+    var my_order_uuid = location.search.substring('?uuid='.length);
+
 
     function orderUpdateCb(order){
-      console.log('orderUpdateCb' + JSON.stringify(order));
+      console.log('orderUpdateCb', order);
       // do something with order here
     }
 
@@ -55,12 +61,18 @@
       // we can call BringgSDK.disconnect() if we are not using a rating screen for example.
     }
 
+    function onTaskCancelledCb(info) {
+      console.log('onTaskCancelledCb', info);
+      // task ended
+      // we can call BringgSDK.disconnect() if we are not using a rating screen for example.
+    }
+
     function onConnect(){
       console.log('onConnect');
       BringgSDK.watchOrder({
         order_uuid: my_order_uuid
       }, function (result) {
-        console.log('watch order result: ' + JSON.stringify(result));
+        console.log('watch order result: ', result);
         if (result && result.shared_location) {
           console.log('calling init bringg with ' + result.share_uuid);
           BringgSDK.initializeBringg({share_uuid: result.share_uuid}, onBringgInitSuccess, onBringgInitFailed);
@@ -100,7 +112,8 @@
       // example for setting callbacks implicitly
       BringgSDK.setEventCallback({
         'taskRatedCb': onTaskRatedCb,
-        'taskEndedCb': onTaskEndedCb
+        'taskEndedCb': onTaskEndedCb,
+        'taskCancelledCb': onTaskCancelledCb
       });
     }
   </script>

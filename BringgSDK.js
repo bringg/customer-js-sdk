@@ -17,6 +17,7 @@ var BringgSDK = (function () {
   var LOCATION_UPDATE_EVENT = 'location update';
   var ORDER_UPDATE_EVENT = 'order update';
   var ORDER_DONE_EVENT = 'order done';
+  var ORDER_CANCELLED_EVENT = 'order cancelled';
 
   var REAL_TIME_PRODUCTION = 'https://realtime2-api.bringg.com/';
   var REAL_TIME_STAGING = 'https://staging-realtime.bringg.com/';
@@ -76,7 +77,8 @@ var BringgSDK = (function () {
       taskRatedCb: null,
       failedLoadingCb: null,
       noteAddedCb: null,
-      taskPostRatedCb: null
+      taskPostRatedCb: null,
+      taskCancelledCb: null
     },
     locationFramesInterval,
     etaInterval,
@@ -1306,6 +1308,18 @@ var BringgSDK = (function () {
       }
     };
 
+    var onOrderCancelled = function (cancellationInfo) {
+      log('order cancelled');
+
+      module._closeSocketConnection();
+
+      watchingDriver = false;
+
+      if (callbacks.taskCancelledCb) {
+        callbacks.taskCancelledCb(cancellationInfo);
+      }
+    };
+
     var onWayPointLocationUpdated = function (data) {
       log('onWayPointLocationUpdated arrived with ', JSON.stringify(data));
       lastEventTime = new Date().getTime();
@@ -1322,6 +1336,7 @@ var BringgSDK = (function () {
     module._safeSubscribe(WAY_POINT_ETA_UPDATE_EVENT, onWayPointEtaUpdated);
     module._safeSubscribe(WAY_POINT_LOCATION_UPDATE_EVENT, onWayPointLocationUpdated);
     module._safeSubscribe(ORDER_DONE_EVENT, onWayPointDone);
+    module._safeSubscribe(ORDER_CANCELLED_EVENT, onOrderCancelled);
     module._safeSubscribe(ORDER_UPDATE_EVENT, module._onOrderUpdate);
     module._safeSubscribe(LOCATION_UPDATE_EVENT, onLocationSocketUpdated);
   };
