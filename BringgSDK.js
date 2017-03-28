@@ -280,13 +280,13 @@ var BringgSDK = (function () {
    * @param callback
    */
   module.watchDriver = function (params, callback) {
-    if (!params || !params.driver_uuid || (!params.share_uuid && !params.access_token)){
+    if (!params || !params.driver_uuid || !params.share_uuid){
         log('watchDriver: invalid params' + JSON.stringify(params));
         if (callback){
             callback({
                 success: false,
                 rc: module.RETURN_CODES.missing_params,
-                error: 'watch driver failed - params must contain driver_uuid and either share_uuid or access_token'
+                error: 'watch driver failed - params must contain driver_uuid and share_uuid'
             });
         }
         return;

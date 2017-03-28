@@ -271,7 +271,7 @@ describe('BringgSDK', function () {
           expect(callback).toHaveBeenCalledWith({
               success: false,
               rc: BringgSDK.RETURN_CODES.missing_params,
-              error: 'watch driver failed - params must contain driver_uuid and either share_uuid or access_token'
+              error: 'watch driver failed - params must contain driver_uuid and share_uuid'
           });
         });
 
@@ -285,7 +285,7 @@ describe('BringgSDK', function () {
           expect(callback).toHaveBeenCalledWith({
               success: false,
               rc: BringgSDK.RETURN_CODES.missing_params,
-              error: 'watch driver failed - params must contain driver_uuid and either share_uuid or access_token'
+              error: 'watch driver failed - params must contain driver_uuid and share_uuid'
           });
         });
 
@@ -299,7 +299,7 @@ describe('BringgSDK', function () {
           expect(callback).toHaveBeenCalledWith({
               success: false,
               rc: BringgSDK.RETURN_CODES.missing_params,
-              error: 'watch driver failed - params must contain driver_uuid and either share_uuid or access_token'
+              error: 'watch driver failed - params must contain driver_uuid and share_uuid'
           });
         });
       });
@@ -313,17 +313,6 @@ describe('BringgSDK', function () {
         expect(BringgSDK._socket.emit).toHaveBeenCalled();
         expect(BringgSDK._socket.emit.calls.mostRecent().args[0]).toEqual('watch driver');
         expect(BringgSDK._socket.emit.calls.mostRecent().args[1]).toEqual(params);
-      });
-
-      it('should call socket.emit if driver_uuid and access_token', function(){
-          var callback = jasmine.createSpy('callback');
-          BringgSDK._socket = { emit: jasmine.createSpy() };
-
-          var params = {driver_uuid: faker.random.number(), access_token: faker.random.number()};
-          BringgSDK.watchDriver(params, callback);
-          expect(BringgSDK._socket.emit).toHaveBeenCalled();
-          expect(BringgSDK._socket.emit.calls.mostRecent().args[0]).toEqual('watch driver');
-          expect(BringgSDK._socket.emit.calls.mostRecent().args[1]).toEqual(params);
       });
 
       describe('callback', function(){
