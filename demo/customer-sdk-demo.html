@@ -3,8 +3,8 @@
 <head>
   <title>Demo SDK use</title>
   <script src="../bower_components/socket.io-client/socket.io.js"></script>
-  <script src="bower_components/bringg-js-sdk/BringgSDK.js"></script>
-  <script src="bower_components/jquery/dist/jquery.min.js"></script>
+  <script src="../BringgSDK.js"></script>
+  <script src="../bower_components/jquery/dist/jquery.min.js"></script>
   <meta name="viewport" content="initial-scale=1.0">
   <meta charset="utf-8">
   <style>
@@ -19,9 +19,9 @@
   </style>
 
   <script type="text/javascript">
-    var customer_access_token = null;
+    var customer_access_token = 'PLACE_A_SAMPLE_CUSTOMER_ACCESS_TOKEN_HERE';
     var my_order_uuid = 'PLACE_A_SAMPLE_ORDER_UUID_HERE'; //note that this requires the 'UUID' attribute and not the 'ID'.
-
+    var my_share_uuid = 'PLACE_A_SAMPLE_SHARE_UUID_HERE';
     function orderUpdateCb(order){
       console.log('orderUpdateCb' + JSON.stringify(order));
       // do something with order here
@@ -58,7 +58,8 @@
     function onConnect(){
       console.log('onConnect');
       BringgSDK.watchOrder({
-        order_uuid: my_order_uuid
+        order_uuid: my_order_uuid,
+        share_uuid: my_share_uuid
       }, function (result) {
         console.log('watch order result: ' + JSON.stringify(result));
         if (result && result.shared_location) {
@@ -68,6 +69,21 @@
       });
 //      alternatively here is an example for using share_uuid directly if you have it
 //      BringgSDK.initializeBringg({share_uuid: PLACE_YOUR_SHARED_LOCATION_UUID_HERE}, onBringgInitSuccess, onBringgInitFailed);
+    }
+
+    // example of watch order without order uuid
+    function onConnectByCustomerAndShareUuid(){
+      console.log('onConnect');
+      BringgSDK.watchOrder({
+        access_token: customer_access_token,
+        share_uuid: my_share_uuid
+      }, function (result) {
+        console.log('watch order result: ' + JSON.stringify(result));
+        if (result && result.shared_location) {
+          console.log('calling init bringg with ' + result.share_uuid);
+          BringgSDK.initializeBringg({share_uuid: result.share_uuid}, onBringgInitSuccess, onBringgInitFailed);
+        }
+      });
     }
 
     function onBringgInitSuccess(configuration){
@@ -89,8 +105,11 @@
         zoom: 8
       });
 
-      // beside
-      BringgSDK.connect(customer_access_token, onConnect);
+      // example for connection using order uuid and share uuid
+      //BringgSDK.connect(customer_access_token, onConnect);
+
+      // example for connection without order uuid
+      BringgSDK.connect(customer_access_token, onConnectByCustomerAndShareUuid);
 
       // example for setting callbacks directly
       BringgSDK.setLocationUpdateCb(locationUpdateCb);
