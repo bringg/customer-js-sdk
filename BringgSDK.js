@@ -154,8 +154,9 @@ var BringgSDK = (function () {
         }
 
       }, function (jqXHR, textStatus, errorThrown) {
+        log('new shared config failed: ' + (jqXHR.status || 503) + ', ' + errorThrown);
         if (callbacks.failedLoadingCb) {
-          callbacks.failedLoadingCb({success: false, rc: module.RETURN_CODES.unknown_reason, error: textStatus});
+          callbacks.failedLoadingCb({success: false, rc: module.RETURN_CODES.unknown_reason, status: (jqXHR.status || 503)  , error: errorThrown});
         }
       });
     }
@@ -953,7 +954,10 @@ var BringgSDK = (function () {
         onLocationUpdated(locationData);
       }
     }).error(function (jqXHR, textStatus, errorThrown) {
-
+      log('Rest localtion update failed: ' + (jqXHR.status || 503) + ', ' + errorThrown);
+      if (callbacks.locationUpdateCb) {
+        callbacks.locationUpdateCb({success: false, status: (jqXHR.status || 503) , error: errorThrown});
+      }
     });
   }
 
@@ -965,7 +969,10 @@ var BringgSDK = (function () {
         module._onOrderUpdate(result.order_update);
       }
     }).error(function (jqXHR, textStatus, errorThrown) {
-
+      log('Rest order update failed: ' + (jqXHR.status || 503) + ', ' + errorThrown);
+      if (callbacks.orderUpdateCb) {
+        callbacks.orderUpdateCb({success: false, status: (jqXHR.status || 503) , error: errorThrown});
+      }
     });
   }
 
@@ -977,7 +984,10 @@ var BringgSDK = (function () {
         module._onOrderUpdate(result.order_update);
       }
     }).error(function (jqXHR, textStatus, errorThrown) {
-
+      log('Rest order update failed: ' + (jqXHR.status || 503) + ', ' + errorThrown);
+      if (callbacks.orderUpdateCb) {
+        callbacks.orderUpdateCb({success: false, status: (jqXHR.status || 503) , error: errorThrown});
+      }
     });
   }
 
@@ -989,7 +999,10 @@ var BringgSDK = (function () {
         module._onOrderUpdate(result.order_update);
       }
     }).error(function (jqXHR, textStatus, errorThrown) {
-
+      log('Rest order update failed: ' + (jqXHR.status || 503) + ', ' + errorThrown);
+      if (callbacks.orderUpdateCb) {
+        callbacks.orderUpdateCb({success: false, status: (jqXHR.status || 503) , error: errorThrown});
+      }
     });
   }
 
@@ -1006,7 +1019,7 @@ var BringgSDK = (function () {
     } else if (params.share_uuid && params.access_token) {
       getOrderViaRestByAccessToken(params.share_uuid, params.access_token);
 
-    }else if (params.access_token) {
+    } else if (params.access_token) {
       createShareForOrderViaRestByAccessToken(params.order_uuid, params.access_token);
     } 
     

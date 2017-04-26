@@ -3,8 +3,10 @@
 <head>
   <title>Demo SDK use</title>
   <script src="../bower_components/socket.io-client/socket.io.js"></script>
-  <script src="../BringgSDK.js"></script>
   <script src="../bower_components/jquery/dist/jquery.min.js"></script>
+  <script src="../bower_components/bringg-js-sdk/BringgSDK.js"></script>
+  <script src="../demo/demoApp.js"></script>
+  <script src="../demo/DemoConfig.js"></script>
   <meta name="viewport" content="initial-scale=1.0">
   <meta charset="utf-8">
   <style>
@@ -17,116 +19,10 @@
       height: 100%;
     }
   </style>
-
-  <script type="text/javascript">
-    var customer_access_token = 'PLACE_A_SAMPLE_CUSTOMER_ACCESS_TOKEN_HERE';
-    var my_order_uuid = 'PLACE_A_SAMPLE_ORDER_UUID_HERE'; //note that this requires the 'UUID' attribute and not the 'ID'.
-    var my_share_uuid = 'PLACE_A_SAMPLE_SHARE_UUID_HERE';
-    function orderUpdateCb(order){
-      console.log('orderUpdateCb' + JSON.stringify(order));
-      // do something with order here
-    }
-
-    function locationUpdateCb(location){
-      console.log('locationUpdateCb');
-      if (location.lat() && location.lng() && map){
-        // do something with location here
-
-        var center = new google.maps.LatLng(location.lat(), location.lng());
-        map.panTo(center);
-      }
-    }
-
-    function etaUpdateCb(eta){
-      console.log('etaUpdateCb');
-      console.log(eta);
-      // can do something with eta here
-    }
-
-    function onTaskRatedCb(){
-      console.log('onTaskRatedCb');
-      // task rated successfully!
-      // we can call BringgSDK.disconnect() for example.
-    }
-
-    function onTaskEndedCb(){
-      console.log('onTaskEndedCb');
-      // task ended
-      // we can call BringgSDK.disconnect() if we are not using a rating screen for example.
-    }
-
-    function onConnect(){
-      console.log('onConnect');
-      BringgSDK.watchOrder({
-        order_uuid: my_order_uuid,
-        share_uuid: my_share_uuid
-      }, function (result) {
-        console.log('watch order result: ' + JSON.stringify(result));
-        if (result && result.shared_location) {
-          console.log('calling init bringg with ' + result.share_uuid);
-          BringgSDK.initializeBringg({share_uuid: result.share_uuid}, onBringgInitSuccess, onBringgInitFailed);
-        }
-      });
-//      alternatively here is an example for using share_uuid directly if you have it
-//      BringgSDK.initializeBringg({share_uuid: PLACE_YOUR_SHARED_LOCATION_UUID_HERE}, onBringgInitSuccess, onBringgInitFailed);
-    }
-
-    // example of watch order without order uuid
-    function onConnectByCustomerAndShareUuid(){
-      console.log('onConnect');
-      BringgSDK.watchOrder({
-        access_token: customer_access_token,
-        share_uuid: my_share_uuid
-      }, function (result) {
-        console.log('watch order result: ' + JSON.stringify(result));
-        if (result && result.shared_location) {
-          console.log('calling init bringg with ' + result.share_uuid);
-          BringgSDK.initializeBringg({share_uuid: result.share_uuid}, onBringgInitSuccess, onBringgInitFailed);
-        }
-      });
-    }
-
-    function onBringgInitSuccess(configuration){
-      console.log('initializeBringg success');
-      console.log(configuration);
-
-      // here we can do something with result.shared_location like storing it
-      // in case we want to use the extra data later.
-    }
-
-    function onBringgInitFailed(error){
-      console.log('initializeBringg failed. error:' + error);
-    }
-
-    var map;
-    function initMap() {
-      map = new google.maps.Map(document.getElementById('map'), {
-        center: {lat: -34.397, lng: 150.644},
-        zoom: 8
-      });
-
-      // example for connection using order uuid and share uuid
-      //BringgSDK.connect(customer_access_token, onConnect);
-
-      // example for connection without order uuid
-      BringgSDK.connect(customer_access_token, onConnectByCustomerAndShareUuid);
-
-      // example for setting callbacks directly
-      BringgSDK.setLocationUpdateCb(locationUpdateCb);
-      BringgSDK.setETAUpdateCb(etaUpdateCb);
-      BringgSDK.setOrderUpdateCb(orderUpdateCb);
-
-      // example for setting callbacks implicitly
-      BringgSDK.setEventCallback({
-        'taskRatedCb': onTaskRatedCb,
-        'taskEndedCb': onTaskEndedCb
-      });
-    }
-  </script>
 </head>
 <body>
   <div id="map"></div>
-  <!-- see https://developers.google.com/maps/documentation/javascript/get-api-key for obtaining maps api key-->
-  <script src="https://maps.googleapis.com/maps/api/js?&key=YOUR_GOOGLE_MAPS_KEY_HERE&callback=initMap" async defer></script>
+  <!-- see https://developers.google.com/maps/documentation/javascript/get-api-key for obtaining maps api key and adding it to the querry string-->
+  <script src="https://maps.googleapis.com/maps/api/js?&callback=initMap" async defer></script>
 </body>
 </html>
