@@ -1,6 +1,8 @@
 'use strict';
  
  
+var map;
+
 function orderUpdateCb(order){
     console.log('orderUpdateCb: ' + JSON.stringify(order));
     // do something with order here
@@ -9,9 +11,9 @@ function orderUpdateCb(order){
 function locationUpdateCb(location){
     console.log('locationUpdateCb: ' + JSON.stringify(location));
     if (location.lat() && location.lng() && map){
-    // do something with location here
-    var center = new google.maps.LatLng(location.lat(), location.lng());
-    map.panTo(center);
+        // do something with location here
+        var center = new google.maps.LatLng(location.lat(), location.lng());
+        map.panTo(center);
     }
 }
 
@@ -36,31 +38,31 @@ function onTaskEndedCb(){
 function onConnectByOrderUuidAndShareUuid(){
     console.log('onConnect');
     BringgSDK.watchOrder({
-    order_uuid: DemoConfig.order_uuid,
-    share_uuid: DemoConfig.share_uuid
+        order_uuid: DemoConfig.order_uuid,
+        share_uuid: DemoConfig.share_uuid
     }, function (result) {
-    console.log('watch order result: ' + JSON.stringify(result));
-    if (result && result.shared_location) {
-        console.log('calling init bringg with ' + result.share_uuid);
-        BringgSDK.initializeBringg({share_uuid: result.share_uuid}, onBringgInitSuccess, onBringgInitFailed);
-    }
+        console.log('watch order result: ' + JSON.stringify(result));
+        if (result && result.shared_location) {
+            console.log('calling init bringg with ' + result.share_uuid);
+            BringgSDK.initializeBringg({share_uuid: result.share_uuid}, onBringgInitSuccess, onBringgInitFailed);
+        }
     });
-//      alternatively here is an example for using share_uuid directly if you have it
-//      BringgSDK.initializeBringg({share_uuid: PLACE_YOUR_SHARED_LOCATION_UUID_HERE}, onBringgInitSuccess, onBringgInitFailed);
+    // alternatively here is an example for using share_uuid directly if you have it
+    // BringgSDK.initializeBringg({share_uuid: PLACE_YOUR_SHARED_LOCATION_UUID_HERE}, onBringgInitSuccess, onBringgInitFailed);
 }
 
 // example of watch order without order uuid
 function onConnectByCustomerAndShareUuid(){
     console.log('onConnect');
     BringgSDK.watchOrder({
-    access_token: DemoConfig.customer_access_token,
-    share_uuid: DemoConfig.share_uuid
+        access_token: DemoConfig.customer_access_token,
+        share_uuid: DemoConfig.share_uuid
     }, function (result) {
-    console.log('watch order result: ' + JSON.stringify(result));
-    if (result && result.shared_location) {
-        console.log('calling init bringg with ' + result.share_uuid);
-        BringgSDK.initializeBringg({share_uuid: result.share_uuid}, onBringgInitSuccess, onBringgInitFailed);
-    }
+        console.log('watch order result: ' + JSON.stringify(result));
+        if (result && result.shared_location) {
+            console.log('calling init bringg with ' + result.share_uuid);
+            BringgSDK.initializeBringg({share_uuid: result.share_uuid}, onBringgInitSuccess, onBringgInitFailed);
+        }
     });
 }
 
@@ -76,11 +78,10 @@ function onBringgInitFailed(error){
     console.log('initializeBringg failed. error:' + error);
 }
 
-var map;
 function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
-    center: {lat: -34.397, lng: 150.644},
-    zoom: 8
+        center: {lat: -34.397, lng: 150.644},
+        zoom: 8
     });
 
     // example for connection using order uuid and share uuid
@@ -96,7 +97,7 @@ function initMap() {
 
     // example for setting callbacks implicitly
     BringgSDK.setEventCallback({
-    'taskRatedCb': onTaskRatedCb,
-    'taskEndedCb': onTaskEndedCb
+        'taskRatedCb': onTaskRatedCb,
+        'taskEndedCb': onTaskEndedCb
     });
 }
