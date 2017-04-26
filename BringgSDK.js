@@ -154,8 +154,9 @@ var BringgSDK = (function () {
         }
 
       }, function (jqXHR, textStatus, errorThrown) {
+        log('new shared config failed: ' + (jqXHR.status || 503) + ', ' + errorThrown);
         if (callbacks.failedLoadingCb) {
-          callbacks.failedLoadingCb({success: false, rc: module.RETURN_CODES.unknown_reason, error: textStatus});
+          callbacks.failedLoadingCb({success: false, rc: module.RETURN_CODES.unknown_reason, status: (jqXHR.status || 503)  , error: errorThrown});
         }
       });
     }
@@ -218,13 +219,13 @@ var BringgSDK = (function () {
    */
   module.watchOrder = function (params, callback) {
 
-    if (!params || !params.order_uuid || (!params.share_uuid && !params.access_token)){
-      log('watchOrder: invalid params' + JSON.stringify(params));
+    if (!isValidWatchOrderParams(params)){
+       log('watchOrder: invalid params' + JSON.stringify(params));
       if (callback){
           callback({
             success: false,
             rc: module.RETURN_CODES.missing_params,
-            error: 'watch order failed - params must contain order_uuid and either share_uuid or access_token'
+            error: 'watch order failed - params must contain at least two of the following params order_uuid, share_uuid, access_token'
           });
       }
       return;
@@ -238,7 +239,7 @@ var BringgSDK = (function () {
       fillConfig(params);
       module._setCredentials(params);
 
-      if (!configuration.expired) {
+      if (!configuration.expired || configuration.expired === false || configuration.expired === 'false') {
         if (!watchingWayPoint && shouldAutoWatchWayPoint && configuration.way_point_id && configuration.order_uuid) {
           module.watchWayPoint({order_uuid: configuration.order_uuid, way_point_id: configuration.way_point_id});
         }
@@ -258,7 +259,9 @@ var BringgSDK = (function () {
 
       if (result.success) {
         watchingOrder = true;
-
+        if (result.order_uuid){
+          configuration.order_uuid = result.order_uuid;
+        }
         if (callback) {
           callback(result);
         }
@@ -609,6 +612,23 @@ var BringgSDK = (function () {
   //
   //========================================================================
 
+  function isValidWatchOrderParams(params) {
+    // watch order must have at least 2 params
+    if (!params || params.length < 2) {
+       return false;
+    }
+    
+    if (!params.order_uuid && (!params.share_uuid || !params.access_token)){
+        return false;
+    }
+
+    if (!params.access_token && (!params.share_uuid || !params.order_uuid)){
+        return false;
+    }
+
+    return true;
+  }
+
   function getRealTimeEndPoint() {
     return window.MONITOR_END_POINT ?
       window.MONITOR_END_POINT.indexOf('/', window.MONITOR_END_POINT.length - 1) !== -1 ? window.MONITOR_END_POINT : window.MONITOR_END_POINT + '/'
@@ -934,11 +954,14 @@ var BringgSDK = (function () {
         onLocationUpdated(locationData);
       }
     }).error(function (jqXHR, textStatus, errorThrown) {
-
+      log('Rest localtion update failed: ' + (jqXHR.status || 503) + ', ' + errorThrown);
+      if (callbacks.locationUpdateCb) {
+        callbacks.locationUpdateCb({success: false, status: (jqXHR.status || 503) , error: errorThrown});
+      }
     });
   }
 
-  function getOrderViaRest(orderUuid, shareUuid) {
+  function getOrderViaRestByOrderUuid(shareUuid, orderUuid) {
     log('Getting order via REST with share uuid: ' + shareUuid);
     $.getJSON(getRealTimeEndPoint() + 'watch/shared/' + shareUuid + '?order_uuid=' + orderUuid, function (result) {
       log('Rest order update: ' + JSON.stringify(result));
@@ -946,11 +969,29 @@ var BringgSDK = (function () {
         module._onOrderUpdate(result.order_update);
       }
     }).error(function (jqXHR, textStatus, errorThrown) {
-
+      log('Rest order update failed: ' + (jqXHR.status || 503) + ', ' + errorThrown);
+      if (callbacks.orderUpdateCb) {
+        callbacks.orderUpdateCb({success: false, status: (jqXHR.status || 503) , error: errorThrown});
+      }
     });
   }
 
-  function createShareForOrderViaRest(orderUuid, customerAccessToken) {
+   function getOrderViaRestByAccessToken(shareUuid, accessToken) {
+    log('Getting order via REST with share uuid: ' + shareUuid);
+    $.getJSON(getRealTimeEndPoint() + 'watch/shared/' + shareUuid + '?access_token=' + accessToken, function (result) {
+      log('Rest order update: ' + JSON.stringify(result));
+      if (result.success && result.order_update) {
+        module._onOrderUpdate(result.order_update);
+      }
+    }).error(function (jqXHR, textStatus, errorThrown) {
+      log('Rest order update failed: ' + (jqXHR.status || 503) + ', ' + errorThrown);
+      if (callbacks.orderUpdateCb) {
+        callbacks.orderUpdateCb({success: false, status: (jqXHR.status || 503) , error: errorThrown});
+      }
+    });
+  }
+
+  function createShareForOrderViaRestByAccessToken(orderUuid, customerAccessToken) {
     log('creating share via REST for order_uuid: ' + orderUuid);
     $.getJSON(getRealTimeEndPoint() + 'shared/orders?order_uuid=' + orderUuid + '&access_token=' + customerAccessToken, function (result) {
       log('Rest order update: ' + JSON.stringify(result));
@@ -958,24 +999,30 @@ var BringgSDK = (function () {
         module._onOrderUpdate(result.order_update);
       }
     }).error(function (jqXHR, textStatus, errorThrown) {
-
+      log('Rest order update failed: ' + (jqXHR.status || 503) + ', ' + errorThrown);
+      if (callbacks.orderUpdateCb) {
+        callbacks.orderUpdateCb({success: false, status: (jqXHR.status || 503) , error: errorThrown});
+      }
     });
   }
 
   function getSharedOrder(params) {
-    if (!params || !params.order_uuid) {
-      log('no order uuid for polling');
+    if (!isValidWatchOrderParams(params)){
+      log('params must contain at least two of the following params order_uuid, share_uuid, access_token');
       return;
     }
+    
+    // the rest method we call depends on the param combination we have
+    if (params.share_uuid && params.order_uuid) {
+      getOrderViaRestByOrderUuid(params.share_uuid, params.order_uuid);
 
-    // if we already have shared location
-    if (params.share_uuid) {
-      getOrderViaRest(params.order_uuid, params.share_uuid);
+    } else if (params.share_uuid && params.access_token) {
+      getOrderViaRestByAccessToken(params.share_uuid, params.access_token);
+
     } else if (params.access_token) {
-      createShareForOrderViaRest(params.order_uuid, params.access_token);
-    } else {
-      log('no 2nd identifier in params for polling');
-    }
+      createShareForOrderViaRestByAccessToken(params.order_uuid, params.access_token);
+    } 
+    
   }
 
   // =========================================
