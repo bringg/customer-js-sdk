@@ -132,6 +132,9 @@ if however you do not have a share_uuid but have the configuration ou can set it
 
 ##### setETAMethod(newETAMethod)
 
+##### setDebug(value)
+when running in debug mode, the app will log useful information to the console for debugging purposes.
+the `value` param should be a Boolean, either `true` or `false`.
 
 ### other
 

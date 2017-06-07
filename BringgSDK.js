@@ -82,7 +82,8 @@ var BringgSDK = (function () {
     etaInterval,
     pollingInterval,
     shouldAutoWatchDriver = true,
-    shouldAutoWatchWayPoint = false;
+    shouldAutoWatchWayPoint = false,
+    debugEnabled = false;
 
   /**
    *
@@ -205,6 +206,10 @@ var BringgSDK = (function () {
 
   module.setConfiguration = function (value) {
     configuration = value;
+  };
+
+  module.setDebug = function (value) {
+    debugEnabled = value;
   };
 
 
@@ -1455,8 +1460,12 @@ var BringgSDK = (function () {
     return getRealTimeEndPoint().indexOf('localhost') != -1;
   }
 
+  function isDebug() {
+    return debugEnabled;
+  }
+
   function log(text) {
-    if (isLocal()) {
+    if (isLocal() || isDebug()) {
       console.log(text);
     }
   }
