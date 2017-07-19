@@ -82,8 +82,7 @@ module.exports = function(config) {
     ],
 
     coverageReporter: {
-      type : 'html',
-      dir : 'coverage/'
+      type : 'lcov'
     },
 
     // level of logging

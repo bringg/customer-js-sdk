@@ -1,5 +1,6 @@
 # customer-js-sdk
 
+[![codecov](https://codecov.io/gh/bringg/customer-js-sdk/branch/master/graph/badge.svg)](https://codecov.io/gh/bringg/customer-js-sdk)
 
 ## Getting started
 
