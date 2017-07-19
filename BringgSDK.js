@@ -18,7 +18,13 @@ var BringgSDK = (function () {
   var ORDER_UPDATE_EVENT = 'order update';
   var ORDER_DONE_EVENT = 'order done';
 
-  var REAL_TIME_PRODUCTION = 'https://realtime2-api.bringg.com/';
+
+  var REGIONS = {
+    "ue1": "https://realtime2-api.bringg.com/",
+    "ew1": "https://eu1-realtime.bringg.com"
+  };
+
+  var REAL_TIME_PRODUCTION = REGIONS["ue1"];
   var REAL_TIME_STAGING = 'https://staging-realtime.bringg.com/';
 
   var REAL_TIME_OPTIONS = {
@@ -170,7 +176,8 @@ var BringgSDK = (function () {
    * @param onDisconnectCb - optional
    */
   module.connect = function (customerAccessToken, onConnectCb, onDisconnectCb) {
-    module._credentials.customer_access_token = customerAccessToken;
+    module._setUpConfigByToken(customerAccessToken);
+
     module.setConnectionCallbacks(onConnectCb, onDisconnectCb);
     module._connectSocket();
   };
@@ -668,6 +675,30 @@ var BringgSDK = (function () {
     watchingOrder = isWatching;
   };
 
+  module._setUpConfigByToken = function(developerToken) {
+    // Check if this new token with region
+    if(!developerToken || developerToken.indexOf("_") === -1) {
+      log('_setUpConfigByToken: developer access token doesnt contain region');
+      return;
+    }
+
+
+    // Extract the region
+    var tokenParts = developerToken.split('_');
+    var region = tokenParts[0],
+        token = tokenParts[1];
+
+    module._credentials.token = token;
+    log('_setUpConfigByToken: got region from developer access token region [' + region + ']');
+
+    // Update the production url
+    if(typeof(REGIONS[region]) === "string") {
+      log('_setUpConfigByToken: setting up region to ' + region);
+      REAL_TIME_PRODUCTION = REGIONS[region];
+      REAL_TIME_OPTIONS.END_POINT = REAL_TIME_PRODUCTION;
+    }
+  };
+
   /**
    * connect the socket and registers all connection listeners.
    * if a previous connection exists it closes it first.
@@ -758,7 +789,6 @@ var BringgSDK = (function () {
    * @param configuration
    */
   module._onNewConfiguration = function (configuration) {
-
     if (configuration.expired === undefined || !configuration.expired || configuration.expired === 'false') {
 
       if (configuration.done === undefined || !configuration.done || configuration.done === 'false') {
@@ -808,7 +838,7 @@ var BringgSDK = (function () {
    */
   module._setCredentials = function (params) {
     if (params.token) {
-      module._credentials.token = params.token;
+      module._setUpConfigByToken(params.token);
     }
     if (params.access_token) {
       module._credentials.customer_access_token = params.access_token;

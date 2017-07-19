@@ -39,6 +39,57 @@ describe('BringgSDK', function () {
     expect(BringgSDK._setCredentials).toBeDefined();
   });
 
+  describe('initializeBringg', function() {
+    beforeEach(function() {
+      // Don't call to google on tests
+      spyOn(BringgSDK, '_setDriverActivity').and.stub();
+
+      // Don't connect to realtime
+      spyOn(window, 'io').and.returnValue({ on: function(){} });
+
+      // Mock getJSON for getSharedConfig
+      spyOn($, 'getJSON').and.callFake(function(url, callback) {
+        callback({});
+        return { error: function(){} };
+      });
+    });
+
+    it('connects to the right url by developer token', function(done) {
+      var config = {
+        token: "ew1_MySecretToken",
+        share_uuid: "shared"
+      };
+
+      function onInit() {
+        expect(window.io).toHaveBeenCalled();
+
+        // make sure we are connected to europe since
+        // token starts with "ew1_"
+        var socketUrl = window.io.calls.first().args[0];
+        expect(socketUrl).toEqual("https://eu1-realtime.bringg.com");
+
+        done();
+      }
+
+      BringgSDK.initializeBringg(config, onInit, function onFailure() {
+        done(new Error('Failed!'));
+      });
+    });
+
+    describe('_setCredentials', function() {
+      it('figures out the developer access token', function() {
+        var token = "MySecretToken",
+            tokenWithRegion = "ew1_MySecretToken";
+
+        BringgSDK._setCredentials({ token: token });
+        expect(BringgSDK._credentials.token).toEqual(token);
+
+        BringgSDK._setCredentials({ token: tokenWithRegion });
+        expect(BringgSDK._credentials.token).toEqual(token);
+      });
+    });
+  });
+
   describe('sockets', function(){
     it('connect ', function () {
       spyOn(BringgSDK, '_connectSocket');
