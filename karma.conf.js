@@ -25,6 +25,7 @@ module.exports = function(config) {
       'BringgSDK.spec.js',
 
       'bower_components/socket.io-client/socket.io.js',
+      'bower_components/jquery/dist/jquery.min.js',
       'bower_components/faker.js/build/build/faker.js'
     ],
 
