@@ -42,6 +42,8 @@ connection callbacks are optional since you can independently set the onConnect/
 
 the access token is also optional at this point.
 
+Deprecation Notice: In the next versoins, calling connect without calling to `initializeBringg` with `token` (Developer Access Token).
+
 
 ##### disconnect()
 closes the real-time connection.
