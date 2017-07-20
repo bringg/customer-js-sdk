@@ -176,7 +176,7 @@ var BringgSDK = (function () {
    * @param onDisconnectCb - optional
    */
   module.connect = function (customerAccessToken, onConnectCb, onDisconnectCb) {
-    module._setUpConfigByToken(customerAccessToken);
+    module._setCredentials({ access_token: customerAccessToken });
 
     module.setConnectionCallbacks(onConnectCb, onDisconnectCb);
     module._connectSocket();
@@ -839,7 +839,10 @@ var BringgSDK = (function () {
   module._setCredentials = function (params) {
     if (params.token) {
       module._setUpConfigByToken(params.token);
+    } else {
+      console.warn("Connecting to Bringg Customer JS SDK without Developer Access Token will be deprecated");
     }
+
     if (params.access_token) {
       module._credentials.customer_access_token = params.access_token;
     }
