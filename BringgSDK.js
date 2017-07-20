@@ -34,6 +34,10 @@ var BringgSDK = (function () {
     'SOCKET_XHR_PORT': 8443
   };
 
+  module._getRealtimeOptions = function() {
+    return REAL_TIME_OPTIONS;
+  };
+
   module.RETURN_CODES = {
     'success': 0,
     'expired': 1,
@@ -677,26 +681,38 @@ var BringgSDK = (function () {
 
   module._setUpConfigByToken = function(developerToken) {
     // Check if this new token with region
-    if(!developerToken || developerToken.indexOf("_") === -1) {
-      log('_setUpConfigByToken: developer access token doesnt contain region');
+    if(!developerToken) {
+      log('_setUpConfigByToken: invalid developer token');
       return;
     }
 
 
-    // Extract the region
-    var tokenParts = developerToken.split('_');
-    var region = tokenParts[0],
-        token = tokenParts[1];
+    for(var region in REGIONS) {
+      if(!REGIONS.hasOwnProperty(region)) continue;
 
-    module._credentials.token = token;
-    log('_setUpConfigByToken: got region from developer access token region [' + region + ']');
+      var regionPrefix = region + "_";
+      if(developerToken.indexOf(regionPrefix) === 0 &&
+        developerToken.length > regionPrefix.length) {
+        // Extract the region
+        var tokenParts = developerToken.split('_');
+        var token = tokenParts[1];
 
-    // Update the production url
-    if(typeof(REGIONS[region]) === "string") {
-      log('_setUpConfigByToken: setting up region to ' + region);
-      REAL_TIME_PRODUCTION = REGIONS[region];
-      REAL_TIME_OPTIONS.END_POINT = REAL_TIME_PRODUCTION;
+        module._credentials.token = token;
+        log('_setUpConfigByToken: got region from developer access token region [' + region + ']');
+
+        // Update the production url
+        if(typeof(REGIONS[region]) === "string") {
+          log('_setUpConfigByToken: setting up region to ' + region);
+          REAL_TIME_PRODUCTION = REGIONS[region];
+          REAL_TIME_OPTIONS.END_POINT = REAL_TIME_PRODUCTION;
+        }
+
+        return;
+      }
     }
+
+    // For backward compatability, set the token unless we returned
+    module._credentials.token = developerToken;
   };
 
   /**
