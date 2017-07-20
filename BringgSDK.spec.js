@@ -30,6 +30,8 @@ describe('BringgSDK', function () {
     expect(BringgSDK.setETAMethodChangedCb).toBeDefined();
     expect(BringgSDK.setETAMethod).toBeDefined();
     expect(BringgSDK.setConnectionCallbacks).toBeDefined();
+
+    expect(BringgSDK.getDriverPhone).toBeDefined();
   });
 
   it ('check internal methods', function(){
@@ -432,6 +434,69 @@ describe('BringgSDK', function () {
       spyOn(BringgSDK, '_setDriverActivity');
       BringgSDK._onNewConfiguration({});
       expect(BringgSDK.disconnect).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getDriverPhone', function(){
+    it('should fail if shared_uuid is not passed', function(){
+      window.$ = {get:function(){}};
+      spyOn(window.$, 'get');
+
+      var result;
+      BringgSDK.getDriverPhone(null, function(res){
+          result = res;
+      });
+
+      expect(window.$.get).not.toHaveBeenCalled();
+      expect(result).toEqual({status: 'error', message: 'No shared_uuid provided'});
+    });
+
+    it('should call the callback with the result on success', function(){
+      window.$ = {get:function(){}};
+      var fakeResult = {success: true, phone_number: faker.phone.phoneNumber()};
+      spyOn(window.$, 'get').and.callFake(function () {
+        return {
+          success: function (callback) {
+            callback(fakeResult);
+            return {
+              fail: function () {
+              }
+            }
+          }
+        }
+      });
+
+      var result;
+      BringgSDK.getDriverPhone(faker.random.number(), function(res){
+        result = res;
+      });
+
+      expect(window.$.get).toHaveBeenCalled();
+      expect(result).toEqual(fakeResult);
+    });
+
+    it('should call the callback with the result on error', function(){
+      window.$ = {get:function(){}};
+      var fakeResult = {responseText: JSON.stringify({success: false, message: 123})};
+      spyOn(window.$, 'get').and.callFake(function () {
+        return {
+          success: function () {
+            return {
+              fail: function (callback) {
+                callback(fakeResult);
+              }
+            }
+          }
+        }
+      });
+
+      var result;
+      BringgSDK.getDriverPhone(faker.random.number(), function(res){
+        result = res;
+      });
+
+      expect(window.$.get).toHaveBeenCalled();
+      expect(result).toEqual(JSON.parse(fakeResult.responseText));
     });
   });
 });
