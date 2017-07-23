@@ -821,16 +821,15 @@ var BringgSDK = (function () {
   //==============================================
   module.getDriverPhone = function (uuid, cb) {
     if (!uuid) {
-      cb({status: 'error', message: 'No shared_uuid provided'});
+      cb({status: 'error', message: 'No shared_uuid provided', rc: module.RETURN_CODES.missing_params});
       return;
     }
     $.get(getRealTimeEndPoint() + '/shared/' + uuid + '/phone_number', {})
       .success(function (result) {
         cb(result);
       }).fail(function (error) {
-        console.log(111)
-        console.log(error)
-        cb(JSON.parse(error.responseText));
+        log(error)
+        cb({status: 'error', message: JSON.parse(error.responseText)});
       });
   };
 

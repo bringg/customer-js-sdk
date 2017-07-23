@@ -2,6 +2,7 @@
 
 beforeEach(function () {
     BringgSDK._socket = null;
+    window.$ = {get:function(){}};
 });
 
 describe('BringgSDK', function () {
@@ -439,7 +440,6 @@ describe('BringgSDK', function () {
 
   describe('getDriverPhone', function(){
     it('should fail if shared_uuid is not passed', function(){
-      window.$ = {get:function(){}};
       spyOn(window.$, 'get');
 
       var result;
@@ -448,11 +448,10 @@ describe('BringgSDK', function () {
       });
 
       expect(window.$.get).not.toHaveBeenCalled();
-      expect(result).toEqual({status: 'error', message: 'No shared_uuid provided'});
+      expect(result).toEqual({status: 'error', message: 'No shared_uuid provided', rc: 4});
     });
 
     it('should call the callback with the result on success', function(){
-      window.$ = {get:function(){}};
       var fakeResult = {success: true, phone_number: faker.phone.phoneNumber()};
       spyOn(window.$, 'get').and.callFake(function () {
         return {
@@ -466,17 +465,16 @@ describe('BringgSDK', function () {
         }
       });
 
-      var result;
+      var getDriverPhoneResult;
       BringgSDK.getDriverPhone(faker.random.number(), function(res){
-        result = res;
+        getDriverPhoneResult = res;
       });
 
       expect(window.$.get).toHaveBeenCalled();
-      expect(result).toEqual(fakeResult);
+      expect(getDriverPhoneResult).toEqual(fakeResult);
     });
 
     it('should call the callback with the result on error', function(){
-      window.$ = {get:function(){}};
       var fakeResult = {responseText: JSON.stringify({success: false, message: 123})};
       spyOn(window.$, 'get').and.callFake(function () {
         return {
@@ -490,13 +488,13 @@ describe('BringgSDK', function () {
         }
       });
 
-      var result;
+      var getDriverPhoneError;
       BringgSDK.getDriverPhone(faker.random.number(), function(res){
-        result = res;
+        getDriverPhoneError = res;
       });
 
       expect(window.$.get).toHaveBeenCalled();
-      expect(result).toEqual(JSON.parse(fakeResult.responseText));
+      expect(getDriverPhoneError).toEqual({status: 'error', message: JSON.parse(fakeResult.responseText)});
     });
   });
 });

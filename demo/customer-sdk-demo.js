@@ -106,7 +106,6 @@ function onLoad() {
       } else {
         addToLogContainer('FAILED Getting Driver Phone Received: ' + result.message);
       }
-
     });
   });
 
