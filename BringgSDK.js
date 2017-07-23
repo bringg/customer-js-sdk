@@ -819,12 +819,12 @@ var BringgSDK = (function () {
   //==============================================
   // Lazy Masked Phone Number
   //==============================================
-  module.getDriverPhone = function (uuid, cb) {
+  module.getDriverPhone = function (uuid, customerPhone, cb) {
     if (!uuid) {
       cb({status: 'error', message: 'No shared_uuid provided', rc: module.RETURN_CODES.missing_params});
       return;
     }
-    $.get(getRealTimeEndPoint() + '/shared/' + uuid + '/phone_number', {})
+    $.get(getRealTimeEndPoint() + '/shared/' + uuid + '/phone_number', {original_phone: customerPhone})
       .success(function (result) {
         cb(result);
       }).fail(function (error) {
