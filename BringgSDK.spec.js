@@ -4,6 +4,9 @@ beforeEach(function () {
   BringgSDK._socket = null;
   window.$ = {
     get: function () {
+    },
+    getJSON: function () {
+
     }
   };
 });
@@ -54,7 +57,7 @@ describe('BringgSDK', function () {
       spyOn(window, 'io').and.returnValue({ on: function(){} });
 
       // Mock getJSON for getSharedConfig
-      spyOn($, 'getJSON').and.callFake(function(url, callback) {
+      spyOn(window.$, 'getJSON').and.callFake(function(url, callback) {
         callback({});
         return { error: function(){} };
       });
@@ -647,7 +650,7 @@ describe('BringgSDK', function () {
         getDriverPhoneError = res;
       });
 
-      expect(window.$.get).toHaveBeenCalledWith('https://realtime2-api.bringg.com//shared/' + uuid + '/phone_number', {original_phone: null});
+      expect(window.$.get).toHaveBeenCalledWith(BringgSDK._getRealtimeOptions().END_POINT + '/shared/' + uuid + '/phone_number', {original_phone: null});
       expect(getDriverPhoneError).toEqual({status: 'error', message: JSON.parse(fakeResult.responseText)});
     });
 
@@ -672,7 +675,7 @@ describe('BringgSDK', function () {
         getDriverPhoneResult = res;
       });
 
-      expect(window.$.get).toHaveBeenCalledWith('https://realtime2-api.bringg.com//shared/' + uuid + '/phone_number', {original_phone: phoneNumber});
+      expect(window.$.get).toHaveBeenCalledWith(BringgSDK._getRealtimeOptions().END_POINT + '/shared/' + uuid + '/phone_number', {original_phone: phoneNumber});
       expect(getDriverPhoneResult).toEqual(fakeResult);
     });
   });
