@@ -4,9 +4,10 @@
   <title>Demo SDK use</title>
   <script src="../bower_components/socket.io-client/socket.io.js"></script>
   <script src="../bower_components/jquery/dist/jquery.min.js"></script>
-  <script src="../bower_components/bringg-js-sdk/BringgSDK.js"></script>
-  <script src="../demo/DemoApp.js"></script>
-  <script src="../demo/DemoConfig.js"></script>
+  <script src="../bower_components/underscore/underscore-min.js"></script>
+  <script src="../BringgSDK.js"></script>
+  <script src="../demo/customer-sdk-demo.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" type="text/css">
   <meta name="viewport" content="initial-scale=1.0">
   <meta charset="utf-8">
   <style>
@@ -18,10 +19,69 @@
     #map {
       height: 100%;
     }
+
+    .container {
+      width: 500px;
+      display: block;
+      border: 1px solid #e2d9c0;
+      margin: auto;
+      margin-top: 10px;
+      padding-top: 15px;
+    }
+
+    .map-container{
+      width: 100%;
+      display: block;
+      height: 360px;
+    }
+
+    .ui-container{
+      display: block;
+      height: 300px;
+    }
+
+    .logs-container{
+      padding: 10px;
+      border: 1px solid gray;
+      background-color: #f9f9f9;
+      margin-bottom: 15px;
+      max-height: 150px;
+      overflow-y: scroll;
+    }
+
+    .log-item{
+      border-bottom: 1px solid #dedede;
+    }
   </style>
 </head>
-<body>
-  <div id="map"></div>
+<body onload="onLoad()">
+  <div class="container">
+    <div class="map-container">
+      <div id="map"></div>
+    </div>
+    <div class="ui-container">
+      <form onsubmit="return false;">
+        <div class="form-group">
+          <label for="order_uuid">Order UUID</label>
+          <input type="text" class="form-control" id="order_uuid">
+        </div>
+        <div class="form-group">
+          <label for="share_uuid">Share UUID</label>
+          <input type="text" id="share_uuid" class="form-control">
+        </div>
+        <!--<div class="form-group">-->
+          <!--<label for="customer_access_token">Customer Access Token</label>-->
+          <!--<input type="text" class="form-control" id="customer_access_token">-->
+        <!--</div>-->
+        <!--<p class="help-block" style="color: red;">**Any two of the tree values are required.</p>-->
+        <button class="btn btn-default pull-left" id="requestPhone">Request Driver Phone</button>
+        <button class="btn btn-default pull-right" id="connectButton">Connect</button>
+      </form>
+    </div>
+    <div class="logs-container" id="logsContainer">
+
+    </div>
+  </div>
   <!-- see https://developers.google.com/maps/documentation/javascript/get-api-key for obtaining maps api key and adding it to the querry string-->
   <script src="https://maps.googleapis.com/maps/api/js?&callback=initMap" async defer></script>
 </body>
