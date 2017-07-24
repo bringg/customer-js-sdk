@@ -1,6 +1,6 @@
 machine:
   node:
-    version: 6.10.0
+    version: 6.11.1
   environment:
     PATH: ${PATH}:${HOME}/${CIRCLE_PROJECT_REPONAME}/node_modules/.bin
 
@@ -12,6 +12,5 @@ checkout:
 
 test:
   post:
-    - mkdir -p $CIRCLE_ARTIFACTS/coverage
-    - mv coverage/ $CIRCLE_ARTIFACTS/coverage
+    - npm run codecov
     - mv junit_results/ $CIRCLE_TEST_REPORTS/

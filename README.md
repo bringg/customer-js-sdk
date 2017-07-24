@@ -1,5 +1,6 @@
 # customer-js-sdk
 
+[![codecov](https://codecov.io/gh/bringg/customer-js-sdk/branch/master/graph/badge.svg)](https://codecov.io/gh/bringg/customer-js-sdk)
 
 ## Getting started
 
@@ -40,6 +41,8 @@ connect to the realtime.
 connection callbacks are optional since you can independently set the onConnect/onDisconnect via setter functions.
 
 the access token is also optional at this point.
+
+Deprecation Notice: In the next versoins, calling connect without calling to `initializeBringg` with `token` (Developer Access Token).
 
 
 ##### disconnect()
