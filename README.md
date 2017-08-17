@@ -220,7 +220,14 @@ BringgSDK.setOrderUpdateCb(orderUpdateCb);
 
 // example for setting callbacks implicitly
 BringgSDK.setEventCallback({
-  'taskRatedCb': onTaskRatedCb
+  'taskRatedCb': onTaskRatedCb              // callback for action: submitRating
+  'taskPostRatedCb': onTaskPostRatedCb      // callback for action: submitRatingReason
+  'noteAddedCb': onNoteAddedCb              // callback for action: submitNote
+  'driverArrivedCb': onDriverArrivedCb      // gets called when driver arrived to the destination address.
+  'driverLeftCb': onDriverLeftCb            // gets called when driver left the customer's address (e.g waypoint was done) and rating is required.
+  'taskEndedCb': onTaskEndedCb              // gets called when task has ended (e.g waypoint was done) and no rating (or further actions) are required.
+  'etaUpdateCb': onEtaUpdateCb              // callback for receiving eta updates. can use setETAUpdateCb instead.
+  'locationUpdateCb': onLocationUpdateCb    // callback for receiving location updates. can use setLocationUpdateCb instead.
 });
 
 ```
