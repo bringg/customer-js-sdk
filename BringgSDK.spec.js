@@ -22,7 +22,7 @@ describe('BringgSDK', function () {
     expect(BringgSDK.watchOrder).toBeDefined();
 
     expect(BringgSDK.setConfiguration).toBeDefined();
-    expect(BringgSDK).setDriverActivity.toBeDefined();
+    expect(BringgSDK.setDriverActivity).toBeDefined();
     expect(BringgSDK.setEventCallback).toBeDefined();
     expect(BringgSDK.submitRating).toBeDefined();
     expect(BringgSDK.submitRatingReason).toBeDefined();
