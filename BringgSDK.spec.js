@@ -22,6 +22,7 @@ describe('BringgSDK', function () {
     expect(BringgSDK.watchOrder).toBeDefined();
 
     expect(BringgSDK.setConfiguration).toBeDefined();
+    expect(BringgSDK).setDriverActivity.toBeDefined();
     expect(BringgSDK.setEventCallback).toBeDefined();
     expect(BringgSDK.submitRating).toBeDefined();
     expect(BringgSDK.submitRatingReason).toBeDefined();
@@ -591,6 +592,38 @@ describe('BringgSDK', function () {
       spyOn(BringgSDK, '_setDriverActivity');
       BringgSDK._onNewConfiguration({});
       expect(BringgSDK.disconnect).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('setDriverActivity', function () {
+    it('should set driver activity to walking', function () {
+      window.google = {
+        maps: {
+          TravelMode: {
+            WALKING: 'walking',
+            DRIVING: 'driving'
+          }
+        }
+      };
+
+      BringgSDK.setDriverActivity('2');
+
+      expect(BringgSDK.getDriverActivity()).toEqual('walking');
+    });
+
+    it('should set driver activity to driving', function () {
+      window.google = {
+        maps: {
+          TravelMode: {
+            WALKING: 'walking',
+            DRIVING: 'driving'
+          }
+        }
+      };
+
+      BringgSDK.setDriverActivity('5');
+
+      expect(BringgSDK.getDriverActivity()).toEqual('driving');
     });
   });
 

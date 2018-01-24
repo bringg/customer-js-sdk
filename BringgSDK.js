@@ -219,6 +219,10 @@ var BringgSDK = (function () {
     configuration = value;
   };
 
+  module.setDriverActivity = function (value) {
+    module._setDriverActivity(value);
+  };
+
   module.setDebug = function (value) {
     debugEnabled = value;
   };
@@ -818,7 +822,6 @@ var BringgSDK = (function () {
           destination = configuration.destination;
         }
 
-        module._setDriverActivity(configuration.driverActivity);
 
         module._setPollingInterval();
 
@@ -937,7 +940,7 @@ var BringgSDK = (function () {
   module._setDriverActivity = function (newActivity) {
     driverActivity = google.maps.TravelMode.DRIVING;
 
-    switch (newActivity) {
+    switch (parseInt(newActivity)) {
       case 1: //not moving
         driverActivity = google.maps.TravelMode.DRIVING;
         break;
