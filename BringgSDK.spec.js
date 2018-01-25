@@ -606,7 +606,7 @@ describe('BringgSDK', function () {
         }
       };
 
-      BringgSDK.setDriverActivity('2');
+      BringgSDK.setDriverActivity(2);
 
       expect(BringgSDK.getDriverActivity()).toEqual('walking');
     });
@@ -621,7 +621,7 @@ describe('BringgSDK', function () {
         }
       };
 
-      BringgSDK.setDriverActivity('5');
+      BringgSDK.setDriverActivity(5);
 
       expect(BringgSDK.getDriverActivity()).toEqual('driving');
     });

@@ -940,7 +940,7 @@ var BringgSDK = (function () {
   module._setDriverActivity = function (newActivity) {
     driverActivity = google.maps.TravelMode.DRIVING;
 
-    switch (parseInt(newActivity)) {
+    switch (newActivity) {
       case 1: //not moving
         driverActivity = google.maps.TravelMode.DRIVING;
         break;
