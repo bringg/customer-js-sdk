@@ -219,6 +219,10 @@ var BringgSDK = (function () {
     configuration = value;
   };
 
+  module.setDriverActivity = function (value) {
+    module._setDriverActivity(value);
+  };
+
   module.setDebug = function (value) {
     debugEnabled = value;
   };
@@ -818,7 +822,6 @@ var BringgSDK = (function () {
           destination = configuration.destination;
         }
 
-        module._setDriverActivity(configuration.driverActivity);
 
         module._setPollingInterval();
 
