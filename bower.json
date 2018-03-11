@@ -9,6 +9,6 @@
     "jquery": "~2.1.4"
   },
   "devDependencies": {
-    "faker.js": "git@github.com:Marak/faker.js.git#v3.0.1"
+    "faker.js": "https://github.com/Marak/faker.js.git#v3.0.1"
   }
 }
