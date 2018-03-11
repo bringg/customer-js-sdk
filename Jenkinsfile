@@ -23,14 +23,15 @@ pipeline {
 
             steps {
                 sh 'npm test'
-                sh 'npm run codecov'
             }
-        }
-    }
 
-    post {
-        always {
-            junit(testResults: "junit_results/*.xml", allowEmptyResults: true)
+            post {
+                always {
+                    junit(testResults: "junit_results/*.xml", allowEmptyResults: true)
+                    sh 'npm run codecov'
+                }
+            }
+
         }
     }
 }
