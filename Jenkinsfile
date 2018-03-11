@@ -7,11 +7,8 @@ pipeline {
         stage('Dependencies') {
 
             steps {
-                sh 'mkdir ~/.npm-global'
-                sh 'npm config set prefix "~/.npm-global"'
                 sh 'npm install'
-                sh 'npm install -g bower grunt-cli'
-                sh '~/.npm-global/bin/bower install'
+                sh 'bower install'
             }
 
         }
