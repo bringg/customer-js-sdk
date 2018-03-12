@@ -1,3 +1,6 @@
+#!groovy
+@Library('ci-scripts') _
+
 pipeline {
     agent {
         dockerfile { filename 'Dockerfile.ci' }
@@ -29,6 +32,12 @@ pipeline {
                 }
             }
 
+        }
+    }
+
+    post {
+        always {
+            slackBuildSummary()
         }
     }
 }
