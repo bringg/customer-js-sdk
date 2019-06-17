@@ -21,7 +21,9 @@ var BringgSDK = (function () {
 
   var REGIONS = {
     "ue1": "https://realtime2-api.bringg.com/",
-    "ew1": "https://eu1-realtime.bringg.com"
+    "ue2": "https://eu2-realtime.bringg.com",
+    "ew1": "https://eu1-realtime.bringg.com",
+    "us2": "https://us2-realtime.bringg.com"
   };
 
   var REAL_TIME_PRODUCTION = REGIONS["ue1"];

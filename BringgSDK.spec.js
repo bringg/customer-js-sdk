@@ -154,6 +154,8 @@ describe('BringgSDK', function () {
     it('takes region from prefix', function() {
       var ue1Endpoint = "https://realtime2-api.bringg.com/";
       var ew1Endpoint = "https://eu1-realtime.bringg.com";
+      var ue2Endpoint = "https://eu2-realtime.bringg.com";
+      var us2Endpoint = "https://us2-realtime.bringg.com";
 
       BringgSDK._setUpConfigByToken('ue1_cooltoken');
       expect(BringgSDK._getRealtimeOptions().END_POINT).toEqual(ue1Endpoint);
@@ -162,6 +164,14 @@ describe('BringgSDK', function () {
       BringgSDK._setUpConfigByToken('ew1_cooltoken');
       expect(BringgSDK._getRealtimeOptions().END_POINT).toEqual(ew1Endpoint);
       expect(BringgSDK._credentials.token).toEqual('cooltoken');
+
+      BringgSDK._setUpConfigByToken('ue2_besttoken');
+      expect(BringgSDK._getRealtimeOptions().END_POINT).toEqual(ue2Endpoint);
+      expect(BringgSDK._credentials.token).toEqual('besttoken');
+
+      BringgSDK._setUpConfigByToken('us2_besttoken');
+      expect(BringgSDK._getRealtimeOptions().END_POINT).toEqual(us2Endpoint);
+      expect(BringgSDK._credentials.token).toEqual('besttoken');
     });
 
   });
