@@ -21,7 +21,16 @@ var BringgSDK = (function () {
 
   var REGIONS = {
     "ue1": "https://realtime2-api.bringg.com/",
-    "ew1": "https://eu1-realtime.bringg.com"
+    "ue2": "https://eu2-realtime.bringg.com",
+    "ew1": "https://eu1-realtime.bringg.com",
+    "us2": "https://us2-realtime.bringg.com"
+  };
+
+  var REGIONS_ENUM = {
+    'ew1': 1,
+    'ue1': 2,
+    'ue2': 5,
+    'us2': 6
   };
 
   var REAL_TIME_PRODUCTION = REGIONS["ue1"];
@@ -672,6 +681,48 @@ var BringgSDK = (function () {
       : isLocal() ? false
         : REAL_TIME_OPTIONS.SECURED_SOCKETS;
   }
+
+  /** get region name from region code number */
+  module.getRegionByCodeNumber = function (regionCode) {
+    if (!regionCode) {
+      log('getRegionByCodeNumber: no region code was provided');
+      return;
+    }
+
+    if (typeof regionCode !== 'number') {
+      log('getRegionByCodeNumber: region code must be a number');
+      return;
+    }
+
+    for (var regionName in REGIONS_ENUM) {
+      if (REGIONS_ENUM[regionName] === regionCode) {
+        return regionName;
+      }
+    }
+  };
+
+  /** get region code from shared url */
+  module.getRegionCodeFromUrl = function (url) {
+    var regionCode = url.split('&e=')[1];
+    return parseInt(regionCode);
+  };
+
+  module.setUpConfigByLocationUrl = function (url) {
+    if (!url) {
+      log('_setUpConfigByLocationUrl: please provide shared location url');
+      return;
+    }
+
+    var regionCode = module.getRegionCodeFromUrl(url);
+    var region = module.getRegionByCodeNumber(regionCode);
+
+    if (region) {
+      log('_setUpConfigByLocationUrl: setting up region to ' + region);
+      REAL_TIME_PRODUCTION = REGIONS[region];
+      REAL_TIME_OPTIONS.END_POINT = REAL_TIME_PRODUCTION;
+      return true;
+    }
+  };
 
   // ========================================================================
 

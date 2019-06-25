@@ -154,6 +154,8 @@ describe('BringgSDK', function () {
     it('takes region from prefix', function() {
       var ue1Endpoint = "https://realtime2-api.bringg.com/";
       var ew1Endpoint = "https://eu1-realtime.bringg.com";
+      var ue2Endpoint = "https://eu2-realtime.bringg.com";
+      var us2Endpoint = "https://us2-realtime.bringg.com";
 
       BringgSDK._setUpConfigByToken('ue1_cooltoken');
       expect(BringgSDK._getRealtimeOptions().END_POINT).toEqual(ue1Endpoint);
@@ -162,8 +164,82 @@ describe('BringgSDK', function () {
       BringgSDK._setUpConfigByToken('ew1_cooltoken');
       expect(BringgSDK._getRealtimeOptions().END_POINT).toEqual(ew1Endpoint);
       expect(BringgSDK._credentials.token).toEqual('cooltoken');
+
+      BringgSDK._setUpConfigByToken('ue2_besttoken');
+      expect(BringgSDK._getRealtimeOptions().END_POINT).toEqual(ue2Endpoint);
+      expect(BringgSDK._credentials.token).toEqual('besttoken');
+
+      BringgSDK._setUpConfigByToken('us2_besttoken');
+      expect(BringgSDK._getRealtimeOptions().END_POINT).toEqual(us2Endpoint);
+      expect(BringgSDK._credentials.token).toEqual('besttoken');
     });
 
+  });
+
+  describe('getRegionByCodeNumber', function () {
+    var REGIONS_ENUM = {
+      'ew1': 1,
+      'ue1': 2,
+      'ue2': 5,
+      'us2': 6
+    };
+
+    it('should return undefined when no code provided', function () {
+      expect(BringgSDK.getRegionByCodeNumber()).toEqual(undefined);
+    });
+
+    it('should return undefined when region is not a number', function () {
+      expect(BringgSDK.getRegionByCodeNumber(faker.name.firstName())).toEqual(undefined);
+    });
+
+    it('should return region name if code is valid', function () {
+      expect(BringgSDK.getRegionByCodeNumber(REGIONS_ENUM['ew1'])).toEqual('ew1');
+      expect(BringgSDK.getRegionByCodeNumber(REGIONS_ENUM['ue1'])).toEqual('ue1');
+      expect(BringgSDK.getRegionByCodeNumber(REGIONS_ENUM['ue2'])).toEqual('ue2');
+      expect(BringgSDK.getRegionByCodeNumber(REGIONS_ENUM['us2'])).toEqual('us2');
+
+    });
+
+    it('should not return region if code not found', function () {
+      expect(BringgSDK.getRegionByCodeNumber(faker.random.number({min: 10, max: 100}))).toEqual(undefined);
+    });
+  });
+
+  describe('getRegionCodeFromUrl', function () {
+    it('should return code from valid shard url', function () {
+      var urlCode = faker.random.number();
+      var url = faker.internet.url() + '&e=' + urlCode;
+      var result = BringgSDK.getRegionCodeFromUrl(url);
+      expect(result).toEqual(urlCode);
+    });
+
+    it('should return Nan from not valid url', function () {
+      var url = faker.internet.url() + '&e=' + faker.name.firstName();
+      var result = BringgSDK.getRegionCodeFromUrl(url);
+      expect(result).toEqual(NaN);
+    });
+  });
+
+  describe('setUpConfigByLocationUrl', function () {
+    it('should return undefined when url is not provided', function () {
+      expect(BringgSDK.setUpConfigByLocationUrl()).toEqual(undefined);
+    });
+
+    it('should return undefined when region is not found', function () {
+      var url = faker.internet.url();
+      expect(BringgSDK.setUpConfigByLocationUrl(url)).toEqual(undefined);
+    });
+
+    it('should setup region from valid url', function () {
+      var validCode = faker.random.number({min: 1, max: 1});
+      var url = faker.internet.url() + '&e=' + validCode;
+      spyOn(BringgSDK, 'getRegionCodeFromUrl').and.callThrough();
+      spyOn(BringgSDK, 'getRegionByCodeNumber').and.callThrough();
+
+      expect(BringgSDK.setUpConfigByLocationUrl(url)).toEqual(true);
+      expect(BringgSDK.getRegionCodeFromUrl).toHaveBeenCalledWith(url);
+      expect(BringgSDK.getRegionByCodeNumber).toHaveBeenCalledWith(validCode);
+    });
   });
 
   describe('sockets', function () {
