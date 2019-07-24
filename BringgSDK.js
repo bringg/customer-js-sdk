@@ -9,7 +9,7 @@ var BringgSDK = (function () {
   // CONSTS
   //
   //========================================================================
-  var MAX_LOCATION_POINTS_FOR_UPDATE = 50;
+  var MAX_LOCATION_POINTS_FOR_UPDATE = 500;
 
   var WAY_POINT_DONE_EVENT = 'way point done';
   var WAY_POINT_LOCATION_UPDATE_EVENT = 'way point location updated';
@@ -61,6 +61,7 @@ var BringgSDK = (function () {
   //
   //========================================================================
   var lastEta,
+    lastEtaSeconds,
     etaMethod,
     driverActivity,
     timeoutForRestPoll = 30000,
@@ -565,6 +566,11 @@ var BringgSDK = (function () {
     if (etaFromServer) {
       return Math.floor((new Date(configuration.eta) - Date.now()) / 1000 / 60);
     }
+    if (lastEtaSeconds) {
+      var secondsSinceLastUpdate = (Date.now().getTime() - lastETAUpdate) / 1000;
+      var newEtaSeconds = lastEtaSeconds - secondsSinceLastUpdate;
+      return Math.floor(newEtaSeconds / 60);
+    }
     return lastEta;
   };
 
@@ -873,6 +879,9 @@ var BringgSDK = (function () {
           destination = configuration.destination;
         }
 
+        if (configuration.driver_activity) {
+          module._setDriverActivity(configuration.driver_activity);
+        }
 
         module._setPollingInterval();
 
@@ -1219,6 +1228,7 @@ var BringgSDK = (function () {
 
               if (newEta !== lastEta) {
                 lastEta = newEta;
+                lastEtaSeconds = element.duration.value;
                 var from = origins[i];
                 var to = destinations[j];
                 if (onETACalculatedCallback) {
@@ -1268,6 +1278,7 @@ var BringgSDK = (function () {
       if (lastEta <= 10) { // 10 minutes away can start getting updated ETA without traffic
         log('calculating ETA less than a 10 minutes, not taking from server anymore');
         etaFromServer = false;
+        return calculateETA(originLat, originLng, destLat, destLng, destAddress, onETACalculatedCallback);
       }
       etaMethod = null;
       initETAMethod();
