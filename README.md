@@ -117,6 +117,8 @@ you can pass the callback to the watchOrder() method instead.
 you can pass the callback to the watchDriver instead.
 note that if you instead let the sdk call it for you, you must pass the callback in order to receive location updates.
 
+the result of this callback is the following object: https://developers.google.com/maps/documentation/javascript/reference/coordinates
+
 ##### setETAUpdateCb(cb)
 
 ##### setETAMethodChangedCb(cb)
