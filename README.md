@@ -21,7 +21,7 @@ add the following to your index.html
 
 ```
 <script src="node_modules/@bringg/customer-sdk/dist/bower_components/socket.io-client/socket.io.js"></script>
-<script src="node_modules/@bringg/customer-sdk/dist/bower_components/BringgSDK.js"></script>
+<script src="node_modules/@bringg/customer-sdk/dist/BringgSDK.js"></script>
 ```
 
 ## API
