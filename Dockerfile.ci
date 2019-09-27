@@ -1,4 +1,6 @@
-FROM node:slim
+FROM node:10-slim
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends bzip2 git libfontconfig \
-    && npm install -g bower grunt-cli
+    && apt-get install -y --no-install-recommends build-essential bzip2 git libfontconfig1 python ruby-compass sudo \
+    && rm -rf /var/lib/apt/lists/* \
+    && echo "ALL ALL=NOPASSWD: ALL" > /etc/sudoers.d/all \
+    && npm config set package-lock false --global
