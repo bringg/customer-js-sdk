@@ -8,7 +8,6 @@ pipeline {
 
     stages {
         stage('Dependencies') {
-
             steps {
                 sh 'npm install'
                 sh 'bower install'
@@ -35,9 +34,9 @@ pipeline {
         }
 
         stage('Deploy') {
-            when {
-                expression { env.BRANCH_NAME in ['master', 'publish_to_npm'] }
-            }
+            /*when {*/
+                /*expression { env.BRANCH_NAME in ['master'] }*/
+            /*}*/
 
             steps {
                 withCredentials([string(credentialsId: 'npm-bringg', variable: 'NPM_TOKEN')]) {
