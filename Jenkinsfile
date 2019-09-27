@@ -2,15 +2,15 @@
 @Library('ci-scripts') _
 
 pipeline {
-    agent {
-        dockerfile { filename 'Dockerfile.ci' }
-    }
+    agent any
 
     stages {
         stage('Dependencies') {
             steps {
-                sh 'npm install'
-                sh 'bower install'
+                withDockerfile([:]) {
+                    sh 'npm install'
+                    sh 'bower install'
+                }
             }
 
         }
@@ -21,13 +21,17 @@ pipeline {
             }
 
             steps {
-                sh 'npm test'
+                withDockerfile([:]) {
+                    sh 'npm test'
+                }
             }
 
             post {
                 always {
                     junit(testResults: "junit_results/*.xml", allowEmptyResults: true)
-                    sh 'npm run codecov'
+                    withDockerfile([:]) {
+                        sh 'npm run codecov'
+                    }
                 }
             }
 
@@ -39,8 +43,11 @@ pipeline {
             /*}*/
 
             steps {
+                withDockerfile([:]) {
+                    sh 'npm run build'
+                }
+
                 withCredentials([string(credentialsId: 'npm-bringg', variable: 'NPM_TOKEN')]) {
-                  sh 'npm run build'
                   dir('dist') {
                     publishNpm(token: env.NPM_TOKEN, public: true)
                   }
