@@ -1,15 +1,12 @@
 {
   "name": "@bringg/customer-sdk",
   "version": "0.0.1",
-  "main": "dist/BringgSDK.js",
+  "main": "BringgSDK.js",
   "scripts": {
     "test": "karma start",
-    "build": "rm -rf dist && mkdir -p dist/bower_components && cp BringgSDK.js dist/BringgSDK.js && cp -r bower_components/socket.io-client dist/bower_components/socket.io-client",
+    "build": "rm -rf dist && mkdir -p dist/bower_components && cp {package.json,LICENSE,BringgSDK.js} dist/ && cp -r bower_components/socket.io-client dist/bower_components/socket.io-client",
     "codecov": "codecov"
   },
-  "files": [
-    "dist"
-  ],
   "devDependencies": {
     "codecov": "^2.2.0",
     "jasmine-core": "^2.5.2",

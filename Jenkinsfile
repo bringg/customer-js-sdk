@@ -33,14 +33,18 @@ pipeline {
             }
 
         }
-           stage('Deploy') {
+
+        stage('Deploy') {
             when {
-                expression { env.BRANCH_NAME == 'master' }
+                expression { env.BRANCH_NAME in ['master', 'publish_to_npm'] }
             }
 
             steps {
                 withCredentials([string(credentialsId: 'npm-bringg', variable: 'NPM_TOKEN')]) {
+                  sh 'npm run build'
+                  dir('dist') {
                     publishNpm(token: env.NPM_TOKEN, public: true)
+                  }
                 }
             }
         }
