@@ -1,8 +1,10 @@
 {
-  "name": "customer-sdk",
-  "version": "0.0.1",
+  "name": "@bringg/customer-sdk",
+  "version": "0.0.2",
+  "main": "BringgSDK.js",
   "scripts": {
     "test": "karma start",
+    "build": "rm -rf dist && mkdir -p dist/bower_components && cp package.json README.md LICENSE BringgSDK.js dist/ && cp -r bower_components/socket.io-client dist/bower_components/socket.io-client",
     "codecov": "codecov"
   },
   "devDependencies": {
