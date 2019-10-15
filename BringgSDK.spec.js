@@ -154,8 +154,8 @@ describe('BringgSDK', function () {
     it('takes region from prefix', function() {
       var ue1Endpoint = "https://realtime2-api.bringg.com/";
       var ew1Endpoint = "https://eu1-realtime.bringg.com";
-      var ue2Endpoint = "https://eu2-realtime.bringg.com";
-      var us2Endpoint = "https://us2-realtime.bringg.com";
+      var ew1gEndpoint = "https://eu2-realtime.bringg.com";
+      var ue4gEndpoint = "https://us2-realtime.bringg.com";
 
       BringgSDK._setUpConfigByToken('ue1_cooltoken');
       expect(BringgSDK._getRealtimeOptions().END_POINT).toEqual(ue1Endpoint);
@@ -165,12 +165,12 @@ describe('BringgSDK', function () {
       expect(BringgSDK._getRealtimeOptions().END_POINT).toEqual(ew1Endpoint);
       expect(BringgSDK._credentials.token).toEqual('cooltoken');
 
-      BringgSDK._setUpConfigByToken('ue2_besttoken');
-      expect(BringgSDK._getRealtimeOptions().END_POINT).toEqual(ue2Endpoint);
+      BringgSDK._setUpConfigByToken('ew1g_besttoken');
+      expect(BringgSDK._getRealtimeOptions().END_POINT).toEqual(ew1gEndpoint);
       expect(BringgSDK._credentials.token).toEqual('besttoken');
 
-      BringgSDK._setUpConfigByToken('us2_besttoken');
-      expect(BringgSDK._getRealtimeOptions().END_POINT).toEqual(us2Endpoint);
+      BringgSDK._setUpConfigByToken('ue4g_besttoken');
+      expect(BringgSDK._getRealtimeOptions().END_POINT).toEqual(ue4gEndpoint);
       expect(BringgSDK._credentials.token).toEqual('besttoken');
     });
 
@@ -180,8 +180,8 @@ describe('BringgSDK', function () {
     var REGIONS_ENUM = {
       'ew1': 1,
       'ue1': 2,
-      'ue2': 5,
-      'us2': 6
+      'ew1g': 5,
+      'ue4g': 6
     };
 
     it('should return undefined when no code provided', function () {
@@ -195,8 +195,8 @@ describe('BringgSDK', function () {
     it('should return region name if code is valid', function () {
       expect(BringgSDK.getRegionByCodeNumber(REGIONS_ENUM['ew1'])).toEqual('ew1');
       expect(BringgSDK.getRegionByCodeNumber(REGIONS_ENUM['ue1'])).toEqual('ue1');
-      expect(BringgSDK.getRegionByCodeNumber(REGIONS_ENUM['ue2'])).toEqual('ue2');
-      expect(BringgSDK.getRegionByCodeNumber(REGIONS_ENUM['us2'])).toEqual('us2');
+      expect(BringgSDK.getRegionByCodeNumber(REGIONS_ENUM['ew1g'])).toEqual('ew1g');
+      expect(BringgSDK.getRegionByCodeNumber(REGIONS_ENUM['ue4g'])).toEqual('ue4g');
 
     });
 
