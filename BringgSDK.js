@@ -1,5 +1,3 @@
-/*global $:false */
-
 'use strict';
 
 var BringgSDK = (function () {
@@ -404,17 +402,26 @@ var BringgSDK = (function () {
   module.submitRating = function (rating) {
     if (configuration) {
       if (configuration.rating_url && configuration.rating_token) {
-        $.post(configuration.rating_url, {
-          rating: rating,
-          token: configuration.rating_token
-        }, function (response) {
-          if (callbacks.taskRatedCb) {
-            callbacks.taskRatedCb(response);
+        post({
+          url: configuration.rating_url,
+          data: {
+            rating: rating,
+            token: configuration.rating_token
+          },
+          json: true
+        }, function (err, xhr, result) {
+          if (err) {
+            log('unknown error while rating');
+
+            if (callbacks.taskRatedCb) {
+              callbacks.taskRatedCb({success: false, message: 'Unknown error while rating'});
+            }
+
+            return;
           }
-        }).fail(function () {
-          log('unknown error while rating');
+
           if (callbacks.taskRatedCb) {
-            callbacks.taskRatedCb({success: false, message: 'Unknown error while rating'});
+            callbacks.taskRatedCb(result);
           }
         });
       } else {
@@ -434,17 +441,25 @@ var BringgSDK = (function () {
   module.submitRatingReason = function (ratingReasonId) {
     if (configuration && configuration.rating_reason) {
       if (configuration.rating_reason.rating_reason_url) {
-        $.post(configuration.rating_reason.rating_reason_url, {
-          rating_reason_id: ratingReasonId,
-          token: configuration.rating_token
-        }, function (response) {
-          if (callbacks.taskPostRatedCb) {
-            callbacks.taskPostRatedCb(response);
+        post({
+          url: configuration.rating_reason.rating_reason_url,
+          data: {
+            rating_reason_id: ratingReasonId,
+            token: configuration.rating_token
+          },
+          json: true
+        }, function (err, xhr, result) {
+          if (err) {
+            log('submit rating reason - unknown error');
+            if (callbacks.taskPostRatedCb) {
+              callbacks.taskPostRatedCb({success: false, message: 'Unknown error while submitting rating reason.'});
+            }
+
+            return;
           }
-        }).fail(function () {
-          log('submit rating reason - unknown error');
+
           if (callbacks.taskPostRatedCb) {
-            callbacks.taskPostRatedCb({success: false, message: 'Unknown error while submitting rating reason.'});
+            callbacks.taskPostRatedCb(result);
           }
         });
       } else {
@@ -466,17 +481,24 @@ var BringgSDK = (function () {
       return;
     }
     if (configuration && configuration.note_url && configuration.note_token) {
-      $.post(configuration.note_url, {
-        note: note,
-        token: configuration.note_token
-      }, function (response) {
-        if (callbacks.noteAddedCb) {
-          callbacks.noteAddedCb(response);
+      post({
+        url: configuration.note_url,
+        data: {
+          note: note,
+          token: configuration.note_token
         }
-      }).fail(function () {
-        log('submit note - error while submitting note');
+      }, function (err, xhr, result) {
+        if (err) {
+          log('submit note - error while submitting note');
+          if (callbacks.noteAddedCb) {
+            callbacks.noteAddedCb({success: false, message: 'Unknown error while sending note'});
+          }
+
+          return;
+        }
+
         if (callbacks.noteAddedCb) {
-          callbacks.noteAddedCb({success: false, message: 'Unknown error while sending note'});
+          callbacks.noteAddedCb(result);
         }
       });
     } else {
@@ -495,17 +517,25 @@ var BringgSDK = (function () {
    */
   module.submitLocation = function (position, successCb, failureCb) {
     if (configuration && configuration.find_me_url && configuration.find_me_token) {
-      $.post(configuration.find_me_url, {
-        position: position,
-        find_me_token: configuration.find_me_token
-      }).success(function (response) {
+      post({
+        url: configuration.find_me_url,
+        data: {
+          position: position,
+          find_me_token: configuration.find_me_token
+        }
+      }, function (err, xhr, result) {
+        if (err) {
+          log('submit location - unknown error');
+
+          if (failureCb) {
+            failureCb();
+          }
+
+          return;
+        }
+
         if (successCb) {
           successCb(response);
-        }
-      }).fail(function () {
-        log('submit location - unknown error');
-        if (failureCb) {
-          failureCb();
         }
       });
     } else {
@@ -526,34 +556,45 @@ var BringgSDK = (function () {
 
     if (configuration && configuration.tipConfiguration && configuration.tipConfiguration.tipSignatureUploadPath
       && configuration.tipConfiguration.tipCurrency && configuration.tip_token && tipConfiguration.tipUrl)
-      $.post(configuration.tipConfiguration.tipSignatureUploadPath, {
-        amount: tip,
-        signatureImage: fileName,
-        currency: configuration.tipConfiguration.tipCurrency,
-        type: blob.type,
-        tipToken: configuration.tip_token
-      }, function (urlResponse) {
-        $.ajax({
+      post({
+        url: configuration.tipConfiguration.tipSignatureUploadPath,
+        json: true,
+        data: {
+          amount: tip,
+          signatureImage: fileName,
+          currency: configuration.tipConfiguration.tipCurrency,
+          type: blob.type,
+          tipToken: configuration.tip_token,
+        }
+      }, function (err, xhr, urlResponse) {
+        if (err) {
+          log('getting signature upload path - unknown error');
+          
+          return;
+        }
+
+        ajax({
           url: urlResponse.url,
-          type: 'PUT',
+          method: 'PUT',
           data: blob,
-          processData: false,
           contentType: blob.type
-        }).success(function (res) {
-          $.post(configuration.tipConfiguration.tipUrl, {
-            amount: tip,
-            tipToken: configuration.tip_token,
-            signatureImage: fileName,
-            currency: configuration.tipConfiguration.tipCurrency,
-            taskNoteId: urlResponse.note_id
-          }).success(function (res) {
+        }, function (err) {
+          if (err) {
+            return log(err);
+          }
 
-          }).fail(function (res) {
-
+          ajax({
+            url: configuration.tipConfiguration.tipUrl,
+            method: 'POST',
+            data: {
+              amount: tip,
+              tipToken: configuration.tip_token,
+              signatureImage: fileName,
+              currency: configuration.tipConfiguration.tipCurrency,
+              taskNoteId: urlResponse.note_id
+            }
           });
         });
-      }).fail(function (res) {
-
       });
   };
 
@@ -935,13 +976,17 @@ var BringgSDK = (function () {
       cb({status: 'error', message: 'No shared_uuid provided', rc: module.RETURN_CODES.missing_params});
       return;
     }
-    $.get(getRealTimeEndPoint() + '/shared/' + uuid + '/phone_number', {original_phone: customerPhone})
-      .success(function (result) {
-        cb(result);
-      }).fail(function (error) {
-        log(error)
-        cb({status: 'error', message: JSON.parse(error.responseText)});
-      });
+    var url = getRealTimeEndPoint() + '/shared/' + uuid + '/phone_number?original_phone=' + encodeURI(customerPhone);
+
+    ajax({ url: url }, function(err, xhr, data) {
+      if (err) {
+        log(err);
+
+        return cb({status: 'error', message: JSON.parse(xhr.responseText)});
+      }
+
+      cb(data);
+    });
   };
 
   // =========================================
@@ -1022,12 +1067,18 @@ var BringgSDK = (function () {
       return;
     }
 
-    var data = $.extend({}, {alert_type: 0, token: configuration.alerting_token}, options);
+    var data = extend({}, {alert_type: 0, token: configuration.alerting_token}, options);
 
-    $.post(configuration.alerting_url, data, function (response) {
-      log(response.success);
-    }).fail(function () {
-      log('Failed alerting');
+    post({
+      url: configuration.alerting_url,
+      json: true,
+      data: data
+    }, function (err, xhr, result) {
+      if (err) {
+        log('Failed alerting');
+      }
+
+      log(result.success);
     });
   }
 
@@ -1072,13 +1123,32 @@ var BringgSDK = (function () {
 
   function getShareConfig(uuid, callback, errorCallback) {
     log('Getting shared config for uuid: ' + uuid);
-    $.getJSON(getRealTimeEndPoint() + 'shared/' + uuid + '?full=true', callback).error(errorCallback);
+    var url = urgetRealTimeEndPoint() + 'shared/' + uuid + '?full=true';
+    
+    ajax({ url: url, json: true }, function(err, xhr, data) {
+      if (err) {
+        return errorCallback(xhr);
+      }
+
+      callback(data);
+    });
   }
 
   function getSharedLocation(uuid) {
     log('Getting location via REST for uuid: ' + uuid);
+    var url = getRealTimeEndPoint() + 'shared/' + uuid + '/location/';
 
-    $.getJSON(getRealTimeEndPoint() + 'shared/' + uuid + '/location/', function (result) {
+    ajax({ url: url, json: true }, function (err, xhr, result) {
+      if (err) {
+        log('Rest localtion update failed: ' + (xhr.status || 503) + ', ' + result);
+
+        if (callbacks.locationUpdateCb) {
+          callbacks.locationUpdateCb({success: false, status: (xhr.status || 503) , error: result});
+        }
+
+        return;
+      }
+
       log('Rest location update: ' + JSON.stringify(result));
       if ((result.success || result.status === 'ok') && result.current_lat && result.current_lng) {
         var locationData = {
@@ -1087,55 +1157,72 @@ var BringgSDK = (function () {
         };
         onLocationUpdated(locationData);
       }
-    }).error(function (jqXHR, textStatus, errorThrown) {
-      log('Rest localtion update failed: ' + (jqXHR.status || 503) + ', ' + errorThrown);
-      if (callbacks.locationUpdateCb) {
-        callbacks.locationUpdateCb({success: false, status: (jqXHR.status || 503) , error: errorThrown});
-      }
     });
   }
 
   function getOrderViaRestByOrderUuid(shareUuid, orderUuid) {
     log('Getting order via REST with share uuid: ' + shareUuid);
-    $.getJSON(getRealTimeEndPoint() + 'watch/shared/' + shareUuid + '?order_uuid=' + orderUuid, function (result) {
+
+    var url = getRealTimeEndPoint() + 'watch/shared/' + shareUuid + '?order_uuid=' + orderUuid;
+
+    ajax({ url: url, json: true }, function (err, xhr, result) {
+      if (err) {
+        log('Rest order update failed: ' + (xhr.status || 503) + ', ' + result);
+
+        if (callbacks.orderUpdateCb) {
+          callbacks.orderUpdateCb({success: false, status: (xhr.status || 503) , error: result});
+        }
+
+        return;
+      }
+
       log('Rest order update: ' + JSON.stringify(result));
+
       if (result.success && result.order_update) {
         module._onOrderUpdate(result.order_update);
-      }
-    }).error(function (jqXHR, textStatus, errorThrown) {
-      log('Rest order update failed: ' + (jqXHR.status || 503) + ', ' + errorThrown);
-      if (callbacks.orderUpdateCb) {
-        callbacks.orderUpdateCb({success: false, status: (jqXHR.status || 503) , error: errorThrown});
       }
     });
   }
 
    function getOrderViaRestByAccessToken(shareUuid, accessToken) {
     log('Getting order via REST with share uuid: ' + shareUuid);
-    $.getJSON(getRealTimeEndPoint() + 'watch/shared/' + shareUuid + '?access_token=' + accessToken, function (result) {
+    var url = getRealTimeEndPoint() + 'watch/shared/' + shareUuid + '?access_token=' + accessToken;
+
+    ajax({ url: url, json: true }, function (err, xhr, result) {
+      if (err) {
+        log('Rest order update failed: ' + (xhr.status || 503) + ', ' + result);
+
+        if (callbacks.orderUpdateCb) {
+          callbacks.orderUpdateCb({success: false, status: (xhr.status || 503) , error: result});
+        }
+
+        return;
+      }
+
       log('Rest order update: ' + JSON.stringify(result));
+
       if (result.success && result.order_update) {
         module._onOrderUpdate(result.order_update);
-      }
-    }).error(function (jqXHR, textStatus, errorThrown) {
-      log('Rest order update failed: ' + (jqXHR.status || 503) + ', ' + errorThrown);
-      if (callbacks.orderUpdateCb) {
-        callbacks.orderUpdateCb({success: false, status: (jqXHR.status || 503) , error: errorThrown});
       }
     });
   }
 
   function createShareForOrderViaRestByAccessToken(orderUuid, customerAccessToken) {
     log('creating share via REST for order_uuid: ' + orderUuid);
-    $.getJSON(getRealTimeEndPoint() + 'shared/orders?order_uuid=' + orderUuid + '&access_token=' + customerAccessToken, function (result) {
+    var url = getRealTimeEndPoint() + 'shared/orders?order_uuid=' + orderUuid + '&access_token=' + customerAccessToken;
+
+    ajax({ url :url, json: true }, function (err, xhr, result) {
+      if (err) {
+        log('Rest order update failed: ' + (xhr.status || 503) + ', ' + result);
+        if (callbacks.orderUpdateCb) {
+          callbacks.orderUpdateCb({success: false, status: (xhr.status || 503) , error: result});
+        }
+      }
+
       log('Rest order update: ' + JSON.stringify(result));
+
       if (result.success && result.order_update) {
         module._onOrderUpdate(result.order_update);
-      }
-    }).error(function (jqXHR, textStatus, errorThrown) {
-      log('Rest order update failed: ' + (jqXHR.status || 503) + ', ' + errorThrown);
-      if (callbacks.orderUpdateCb) {
-        callbacks.orderUpdateCb({success: false, status: (jqXHR.status || 503) , error: errorThrown});
       }
     });
   }
@@ -1210,8 +1297,9 @@ var BringgSDK = (function () {
 
     function callback(response, status) {
       if (response) {
-        log('calculating ETA received (' + status + '): ', response.rows);
+        log('calculating ETA received (' + status + '): ' + response.rows);
       }
+
       if (status === google.maps.DistanceMatrixStatus.OK) {
         var origins = response.originAddresses;
         var destinations = response.destinationAddresses;
@@ -1490,7 +1578,7 @@ var BringgSDK = (function () {
     };
 
     var onWayPointLocationUpdated = function (data) {
-      log('onWayPointLocationUpdated arrived with ', JSON.stringify(data));
+      log('onWayPointLocationUpdated arrived with ' + JSON.stringify(data));
       lastEventTime = new Date().getTime();
 
       configuration.destination_lat = parseFloat(data.lat);
@@ -1657,6 +1745,58 @@ var BringgSDK = (function () {
     }
 
     return path;
+  }
+
+  function ajax(opts, cb) {
+    var url = opts.url;
+    var json = opts.json;
+    var method = opts.method || 'GET';
+    var data = opts.data;
+    var contentType = opts.contentType;
+    var callback = cb || function() {};
+
+    var request = new XMLHttpRequest();
+    request.open(method, url, true);
+
+    if (contentType) {
+      request.setRequestHeader('Content-Type', contentType);
+    }
+
+    request.onreadystatechange = function() {
+      if (this.readyState === 4) {
+        var data = this.responseText;
+
+        if (this.status >= 200 && this.status < 400) {
+          if (json) {
+            data = JSON.parse(data);
+          }
+
+          callback(null, this, data);
+        } else {
+          var error = new Error(data);
+
+          callback(error, this);
+        }
+      }
+    };
+
+    request.send(data);
+  }
+
+  function extend(out) {
+    out = out || {};
+  
+    for (var i = 1; i < arguments.length; i++) {
+      if (!arguments[i])
+        continue;
+  
+      for (var key in arguments[i]) {
+        if (arguments[i].hasOwnProperty(key))
+          out[key] = arguments[i][key];
+      }
+    }
+  
+    return out;
   }
 
   return module;

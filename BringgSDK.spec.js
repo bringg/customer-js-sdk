@@ -2,13 +2,9 @@
 
 beforeEach(function () {
   BringgSDK._socket = null;
-  window.$ = {
-    get: function () {
-    },
-    getJSON: function () {
 
-    }
-  };
+  spyOn(XMLHttpRequest.prototype, 'open').and.callThrough();
+  spyOn(XMLHttpRequest.prototype, 'send');
 });
 
 describe('BringgSDK', function () {
@@ -712,7 +708,7 @@ describe('BringgSDK', function () {
         result = res;
       });
 
-      expect(window.$.get).not.toHaveBeenCalled();
+      expect(XMLHttpRequest.prototype.open).not.toHaveBeenCalled();
       expect(result).toEqual({status: 'error', message: 'No shared_uuid provided', rc: 4});
     });
 
@@ -735,7 +731,7 @@ describe('BringgSDK', function () {
         getDriverPhoneResult = res;
       });
 
-      expect(window.$.get).toHaveBeenCalled();
+      expect(XMLHttpRequest.prototype.open).toHaveBeenCalled();
       expect(getDriverPhoneResult).toEqual(fakeResult);
     });
 
