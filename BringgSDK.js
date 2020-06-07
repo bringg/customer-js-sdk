@@ -171,10 +171,10 @@ var BringgSDK = (function () {
           initSuccessCb(configuration);
         }
 
-      }, function (jqXHR, textStatus, errorThrown) {
-        log('new shared config failed: ' + (jqXHR.status || 503) + ', ' + errorThrown);
+      }, function (err, xhr, result) {
+        log('new shared config failed: ' + (xhr.status || 503) + ', ' + result);
         if (callbacks.failedLoadingCb) {
-          callbacks.failedLoadingCb({success: false, rc: module.RETURN_CODES.unknown_reason, status: (jqXHR.status || 503)  , error: errorThrown});
+          callbacks.failedLoadingCb({success: false, rc: module.RETURN_CODES.unknown_reason, status: (xhr.status || 503)  , error: result});
         }
       });
     }
@@ -1127,7 +1127,7 @@ var BringgSDK = (function () {
     
     ajax({ url: url, json: true }, function(err, xhr, data) {
       if (err) {
-        return errorCallback(xhr);
+        return errorCallback(err, xhr, data);
       }
 
       callback(data);
