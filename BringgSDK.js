@@ -402,7 +402,8 @@ var BringgSDK = (function () {
   module.submitRating = function (rating) {
     if (configuration) {
       if (configuration.rating_url && configuration.rating_token) {
-        post({
+        ajax({
+          method: 'POST',
           url: configuration.rating_url,
           data: {
             rating: rating,
@@ -441,7 +442,8 @@ var BringgSDK = (function () {
   module.submitRatingReason = function (ratingReasonId) {
     if (configuration && configuration.rating_reason) {
       if (configuration.rating_reason.rating_reason_url) {
-        post({
+        ajax({
+          method: 'POST',
           url: configuration.rating_reason.rating_reason_url,
           data: {
             rating_reason_id: ratingReasonId,
@@ -481,12 +483,14 @@ var BringgSDK = (function () {
       return;
     }
     if (configuration && configuration.note_url && configuration.note_token) {
-      post({
+      ajax({
+        method: 'POST',
         url: configuration.note_url,
         data: {
           note: note,
           token: configuration.note_token
-        }
+        },
+        json: true
       }, function (err, xhr, result) {
         if (err) {
           log('submit note - error while submitting note');
@@ -517,7 +521,9 @@ var BringgSDK = (function () {
    */
   module.submitLocation = function (position, successCb, failureCb) {
     if (configuration && configuration.find_me_url && configuration.find_me_token) {
-      post({
+      ajax({
+        method: 'POST',
+        json: true,
         url: configuration.find_me_url,
         data: {
           position: position,
@@ -556,7 +562,8 @@ var BringgSDK = (function () {
 
     if (configuration && configuration.tipConfiguration && configuration.tipConfiguration.tipSignatureUploadPath
       && configuration.tipConfiguration.tipCurrency && configuration.tip_token && tipConfiguration.tipUrl)
-      post({
+      ajax({
+        method: 'POST',
         url: configuration.tipConfiguration.tipSignatureUploadPath,
         json: true,
         data: {
@@ -1069,13 +1076,16 @@ var BringgSDK = (function () {
 
     var data = extend({}, {alert_type: 0, token: configuration.alerting_token}, options);
 
-    post({
+    ajax({
+      method: 'POST',
       url: configuration.alerting_url,
       json: true,
       data: data
     }, function (err, xhr, result) {
       if (err) {
         log('Failed alerting');
+
+        return;
       }
 
       log(result.success);
