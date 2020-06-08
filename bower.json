@@ -6,7 +6,6 @@
   ],
   "dependencies": {
     "socket.io-client": "https://github.com/liorsion/socket.io-client.git#0cd60822b6aed9fc4538009b52b0b9d0ab1c2184",
-    "jquery": "~2.1.4"
   },
   "devDependencies": {
     "faker.js": "https://github.com/Marak/faker.js.git#v3.0.1"

@@ -100,7 +100,7 @@ function onLoad() {
       return;
     }
 
-    BringgSDK.getDriverPhone(share_uuid, function (result) {
+    BringgSDK.getDriverPhone(share_uuid, '', function (result) {
       if (result.status === 'ok') {
         addToLogContainer('Driver Phone Received: ' + result.phone_number);
       } else {
