@@ -915,8 +915,9 @@ var BringgSDK = (function () {
    * @param params
    */
   module._setCredentials = function (params) {
-    if (params.token) {
-      module._setUpConfigByToken(params.token);
+    var token = params.token || params.access_token;
+    if (token) {
+      module._setUpConfigByToken(token);
     } else {
       console.warn("Connecting to Bringg Customer JS SDK without Developer Access Token will be deprecated");
     }
