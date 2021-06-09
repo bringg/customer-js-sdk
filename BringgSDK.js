@@ -19,10 +19,10 @@ var BringgSDK = (function () {
   var ORDER_DONE_EVENT = 'order done';
 
   var REGIONS = {
-    "ew1": "https://eu1-realtime.bringg.com",
+    "ew1": "https://eu1-realtime.bringg.com/",
     "ue1": "https://realtime2-api.bringg.com/",
-    "ew1g" : "https://eu2-realtime.bringg.com",
-    "ue4g": "https://us2-realtime.bringg.com"
+    "ew1g" : "https://eu2-realtime.bringg.com/",
+    "ue4g": "https://us2-realtime.bringg.com/"
   };
 
   var REGIONS_ENUM = {

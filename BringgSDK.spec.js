@@ -73,7 +73,7 @@ describe("BringgSDK", function () {
         // make sure we are connected to europe since
         // token starts with "ew1_"
         var socketUrl = window.io.calls.first().args[0];
-        expect(socketUrl).toEqual("https://eu1-realtime.bringg.com");
+        expect(socketUrl).toEqual("https://eu1-realtime.bringg.com/");
 
         done();
       }
@@ -149,9 +149,9 @@ describe("BringgSDK", function () {
 
     it("takes region from prefix", function () {
       var ue1Endpoint = "https://realtime2-api.bringg.com/";
-      var ew1Endpoint = "https://eu1-realtime.bringg.com";
-      var ew1gEndpoint = "https://eu2-realtime.bringg.com";
-      var ue4gEndpoint = "https://us2-realtime.bringg.com";
+      var ew1Endpoint = "https://eu1-realtime.bringg.com/";
+      var ew1gEndpoint = "https://eu2-realtime.bringg.com/";
+      var ue4gEndpoint = "https://us2-realtime.bringg.com/";
 
       BringgSDK._setUpConfigByToken("ue1_cooltoken");
       expect(BringgSDK._getRealtimeOptions().END_POINT).toEqual(ue1Endpoint);
