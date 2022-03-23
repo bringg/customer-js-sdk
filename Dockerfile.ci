@@ -1,5 +1,7 @@
 FROM bringg/node:16-slim
 
+ENV OPENSSL_CONF=/etc/ssl
+
 RUN apt-get update \
     && apt-get install -y --no-install-recommends bzip2 git libfontconfig ca-certificates \
     && npm install -g bower
