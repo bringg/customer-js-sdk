@@ -39,7 +39,6 @@ var BringgSDK = (function () {
     'END_POINT': REAL_TIME_PRODUCTION,
     'SECURED_SOCKETS': true,
     'SOCKET_WEBSOCKET_PORT': 443,
-    'SOCKET_XHR_PORT': 8443
   };
 
   module._getRealtimeOptions = function() {
@@ -675,12 +674,6 @@ var BringgSDK = (function () {
         : REAL_TIME_OPTIONS.SOCKET_WEBSOCKET_PORT;
   }
 
-  function getXHRPort() {
-    return window.SOCKET_XHR_PORT ? window.SOCKET_XHR_PORT
-      : isLocal() ? '3030'
-        : REAL_TIME_OPTIONS.SOCKET_XHR_PORT;
-  }
-
   function getSecuredSocketSetup() {
     return window.SECURED_SOCKETS ? window.SECURED_SOCKETS
       : isLocal() ? false
@@ -784,8 +777,7 @@ var BringgSDK = (function () {
 
     module._socket = io(getRealTimeEndPoint(), {
       transports: [
-        {name: 'websocket', options: {port: getWebSocketPort(), secure: getSecuredSocketSetup()}},
-        {name: 'polling', options: {port: getXHRPort(), secure: getSecuredSocketSetup()}}
+        {name: 'websocket', options: {port: getWebSocketPort(), secure: getSecuredSocketSetup()}}
       ]
     });
 
