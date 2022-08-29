@@ -102,9 +102,6 @@ send a note by the customer.
 ##### submitLocation(position, successCb, failureCb)
 send the customer current location.
 
-##### submitTip(tip)
-send the tip amount that the customer decides to add.
-
 ### setting callbacks
 
 ##### setConnectionCallbacks(onConnectCb, onDisconnectCb)

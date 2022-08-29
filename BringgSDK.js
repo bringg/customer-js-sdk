@@ -517,47 +517,6 @@ var BringgSDK = (function () {
 
   /**
    *
-   */
-  module.submitTip = function (tip) {
-    var canvas = document.getElementById('newSignature');// save canvas image as data url (png format by default)
-    var blob = dataURItoBlob(canvas.toDataURL('image/jpg'));
-    var fileName = guid() + '.jpg';
-
-    if (configuration && configuration.tipConfiguration && configuration.tipConfiguration.tipSignatureUploadPath
-      && configuration.tipConfiguration.tipCurrency && configuration.tip_token && tipConfiguration.tipUrl)
-      $.post(configuration.tipConfiguration.tipSignatureUploadPath, {
-        amount: tip,
-        signatureImage: fileName,
-        currency: configuration.tipConfiguration.tipCurrency,
-        type: blob.type,
-        tipToken: configuration.tip_token
-      }, function (urlResponse) {
-        $.ajax({
-          url: urlResponse.url,
-          type: 'PUT',
-          data: blob,
-          processData: false,
-          contentType: blob.type
-        }).success(function (res) {
-          $.post(configuration.tipConfiguration.tipUrl, {
-            amount: tip,
-            tipToken: configuration.tip_token,
-            signatureImage: fileName,
-            currency: configuration.tipConfiguration.tipCurrency,
-            taskNoteId: urlResponse.note_id
-          }).success(function (res) {
-
-          }).fail(function (res) {
-
-          });
-        });
-      }).fail(function (res) {
-
-      });
-  };
-
-  /**
-   *
    * @returns {*}
    */
   module.getLastKnownETA = function () {
