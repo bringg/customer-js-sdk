@@ -25,7 +25,6 @@ describe("BringgSDK", function () {
     expect(BringgSDK.submitRatingReason).toBeDefined();
     expect(BringgSDK.submitNote).toBeDefined();
     expect(BringgSDK.submitLocation).toBeDefined();
-    expect(BringgSDK.submitTip).toBeDefined();
 
     expect(BringgSDK.getLastKnownETA).toBeDefined();
     expect(BringgSDK.getETAMethod).toBeDefined();
