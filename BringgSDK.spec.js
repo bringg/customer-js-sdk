@@ -9,6 +9,10 @@ beforeEach(function () {
 });
 
 describe("BringgSDK", function () {
+  afterEach(function() {
+    BringgSDK.resetAllCallbacks();
+  })
+
   it("check the API of the service", function () {
     expect(BringgSDK._socket).toBeNull();
     expect(BringgSDK.initializeBringg).toBeDefined();
@@ -147,7 +151,7 @@ describe("BringgSDK", function () {
     });
 
     it("takes region from prefix", function () {
-      var ue1Endpoint = "https://realtime2-api.bringg.com/";
+      var ue1Endpoint = "https://realtime.bringg.com/";
       var ew1Endpoint = "https://eu1-realtime.bringg.com/";
       var ew1gEndpoint = "https://eu2-realtime.bringg.com/";
       var ue4gEndpoint = "https://us2-realtime.bringg.com/";

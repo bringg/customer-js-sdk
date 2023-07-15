@@ -20,16 +20,20 @@ var BringgSDK = (function () {
 
   var REGIONS = {
     "ew1": "https://eu1-realtime.bringg.com/",
-    "ue1": "https://realtime2-api.bringg.com/",
+    "ue1": "https://realtime.bringg.com/",
     "ew1g" : "https://eu2-realtime.bringg.com/",
-    "ue4g": "https://us2-realtime.bringg.com/"
+    "ue4g": "https://us2-realtime.bringg.com/",
+    "ew3g": "https://eu3-realtime.bringg.com/",
+    "uc1g": "https://us3-realtime.bringg.com/",
   };
 
   var REGIONS_ENUM = {
     'ew1': 1,
     'ue1': 2,
     'ew1g': 5,
-    'ue4g': 6
+    'ue4g': 6,
+    'ew3g': 7,
+    'uc1g': 8
   };
 
   var REAL_TIME_PRODUCTION = REGIONS["ue1"];
@@ -397,6 +401,24 @@ var BringgSDK = (function () {
       if (callbacks[callbackIdx] === null) {
         callbacks[callbackIdx] = addedCallbacks[callbackIdx];
       }
+    }
+  };
+
+  module.resetAllCallbacks = function() {
+    callbacks = {
+      onConnectCb: null,
+      onDisconnectCb: null,
+      orderUpdateCb: null,
+      locationUpdateCb: null,
+      etaUpdateCb: null,
+      etaMethodChangedCb: null,
+      driverArrivedCb: null,
+      driverLeftCb: null,
+      taskEndedCb: null,
+      taskRatedCb: null,
+      failedLoadingCb: null,
+      noteAddedCb: null,
+      taskPostRatedCb: null
     }
   };
 
