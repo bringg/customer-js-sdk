@@ -404,6 +404,24 @@ var BringgSDK = (function () {
     }
   };
 
+  module.resetAllCallbacks = function() {
+    callbacks = {
+      onConnectCb: null,
+      onDisconnectCb: null,
+      orderUpdateCb: null,
+      locationUpdateCb: null,
+      etaUpdateCb: null,
+      etaMethodChangedCb: null,
+      driverArrivedCb: null,
+      driverLeftCb: null,
+      taskEndedCb: null,
+      taskRatedCb: null,
+      failedLoadingCb: null,
+      noteAddedCb: null,
+      taskPostRatedCb: null
+    }
+  };
+
   module.submitRating = function (rating) {
     if (configuration) {
       if (configuration.rating_url && configuration.rating_token) {
