@@ -1,4 +1,4 @@
-FROM bringg/node:16-slim
+FROM bringg/node:20-slim
 
 ENV OPENSSL_CONF=/etc/ssl
 
