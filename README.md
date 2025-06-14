@@ -1,7 +1,5 @@
 # customer-js-sdk
 
-[![codecov](https://codecov.io/gh/bringg/customer-js-sdk/branch/master/graph/badge.svg)](https://codecov.io/gh/bringg/customer-js-sdk)
-
 ## Getting started
 
 #### Install
@@ -19,7 +17,7 @@ add the following to your index.html
 
 ### Main methods
 
-##### initializaBringg (params, [initDoneCb], [initFailedCb])
+##### initializeBringg (params, [initDoneCb], [initFailedCb])
 optional setup function. 
 params can be used to pass credentials and share uuid if you already hold a reference to it.
 
@@ -230,7 +228,3 @@ BringgSDK.setEventCallback({
 });
 
 ```
-
-### Other tips and tricks
-##### disabling CORS while testing on localhost
-`open -a Google\ Chrome --args --disable-web-security --user-data-dir`
