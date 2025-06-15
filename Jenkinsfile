@@ -16,11 +16,6 @@ pipeline {
 
         }
         stage('Tests') {
-
-            environment {
-                CODECOV_TOKEN = '71724648-0254-4cd6-84b2-a7da9b2134ef'
-            }
-
             steps {
                 sh 'npm test'
             }
@@ -28,7 +23,6 @@ pipeline {
             post {
                 always {
                     junit(testResults: "junit_results/*.xml", allowEmptyResults: true)
-                    sh 'npm run codecov'
                 }
             }
 
