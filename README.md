@@ -7,8 +7,10 @@
 
 #### Dependencies
 add the following to your index.html
-```
-<script src="bower_components/socket.io-client/socket.io.js"></script>
+```html
+<!-- We require socket.io 4.x to be loaded separately. -->
+<!-- https://socket.io/docs/v4/client-installation/ -->
+<script src="https://cdn.socket.io/4.8.1/socket.io.min.js" integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+" crossorigin="anonymous"></script>
 <script src="bower_components/bringg-sdk/BringgSDK.js"></script>
 ```
 
@@ -18,7 +20,7 @@ add the following to your index.html
 ### Main methods
 
 ##### initializeBringg (params, [initDoneCb], [initFailedCb])
-optional setup function. 
+optional setup function.
 params can be used to pass credentials and share uuid if you already hold a reference to it.
 
 `params`:
@@ -40,7 +42,7 @@ connection callbacks are optional since you can independently set the onConnect/
 
 the access token is also optional at this point.
 
-Deprecation Notice: In the next versoins, calling connect without calling to `initializeBringg` with `token` (Developer Access Token).
+Deprecation Notice: In the next versions, calling connect without calling to `initializeBringg` with `token` (Developer Access Token).
 
 
 ##### disconnect()
@@ -169,8 +171,8 @@ BringgSDK.initializeBringg({share_uuid: YOUR_SHARE_UUID}, function(updatedConfig
 ```
 
 ##### This shows how to watch order manually
-```
-var customer_access_token = 'YOUR_CUSTOMER_ACCESS_TOKEN'; // may be null 
+```javascript
+var customer_access_token = 'YOUR_CUSTOMER_ACCESS_TOKEN'; // may be null
 var my_order_uuid = 'SOME_UUID_HERE';
 var my_share_uuid = 'ANOTHER_UUID';
 var my_active_way_point_id = 'SOME ID';
@@ -197,7 +199,7 @@ function onTaskRatedCb(){
 function onConnect(){
    BringgSDK.watchOrder({
           order_uuid: my_order_uuid,
-          way_point_id: my_way_point_id,  
+          way_point_id: my_way_point_id,
           share_uuid: my_share_uuid       // can be null if you connected with the customer_access_token.
         }, function (result) {
           if (result && result.shared_location) {
@@ -207,7 +209,7 @@ function onConnect(){
         });
 }
 
-// beside 
+// beside
 BringgSDK.connect(customer_access_token, onConnect);
 
 // example for setting callbacks directly

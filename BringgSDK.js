@@ -37,7 +37,7 @@ var BringgSDK = (function () {
   };
 
   var REAL_TIME_PRODUCTION = REGIONS["ue1"];
-  var REAL_TIME_STAGING = 'https://staging-realtime.bringg.com/';
+  var REAL_TIME_STAGING = 'https://stg2-realtime.bringg.com/';
 
   var REAL_TIME_OPTIONS = {
     'END_POINT': REAL_TIME_PRODUCTION,
@@ -384,7 +384,7 @@ var BringgSDK = (function () {
   };
 
   module._connectCustomer = function () {
-    if (module._credentials !== {}) {
+    if (!$.isEmptyObject(module._credentials)) {
       log('calling connect customer with ' + JSON.stringify(module._credentials));
       module._socket.emit('customer connect', module._credentials, function (result) {
         log(JSON.stringify(result));
@@ -631,7 +631,7 @@ var BringgSDK = (function () {
     if (!params || params.length < 2) {
        return false;
     }
-    
+
     if (!params.order_uuid && (!params.share_uuid || !params.access_token)){
         return false;
     }
@@ -757,15 +757,18 @@ var BringgSDK = (function () {
     module._closeSocketConnection();
 
     module._socket = io(getRealTimeEndPoint(), {
-      transports: [
-        {name: 'websocket', options: {port: getWebSocketPort(), secure: getSecuredSocketSetup()}}
-      ]
+      transports: ['websocket'],
+      transportOptions: {
+        websocket: {
+          port: getWebSocketPort(),
+          secure: getSecuredSocketSetup()
+        }
+      }
     });
 
     module._socket.on('connect', module._onSocketConnected);
-    module._socket.on('connecting', onSocketConnecting);
     module._socket.on('disconnect', onSocketDisconnected);
-    module._socket.on('error', onSocketError);
+    module._socket.on('connect_error', onConnectError);
   };
 
   /**
@@ -1119,7 +1122,7 @@ var BringgSDK = (function () {
       log('params must contain at least two of the following params order_uuid, share_uuid, access_token');
       return;
     }
-    
+
     // the rest method we call depends on the param combination we have
     if (params.share_uuid && params.order_uuid) {
       getOrderViaRestByOrderUuid(params.share_uuid, params.order_uuid);
@@ -1129,8 +1132,7 @@ var BringgSDK = (function () {
 
     } else if (params.access_token) {
       createShareForOrderViaRestByAccessToken(params.order_uuid, params.access_token);
-    } 
-    
+    }
   }
 
   // =========================================
@@ -1548,12 +1550,8 @@ var BringgSDK = (function () {
     }
   }
 
-  function onSocketError(data) {
-    log('module._socket error: ' + JSON.stringify(data));
-  }
-
-  function onSocketConnecting(transport) {
-    log('module._socket connecting with ' + transport);
+  function onConnectError(error) {
+    log('module._socket connection error: ' + error.toString() + ' - reconnect: ' + module._socket.active);
   }
 
 

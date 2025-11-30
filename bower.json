@@ -5,8 +5,7 @@
     "BringgSDK.js"
   ],
   "dependencies": {
-    "socket.io-client": "https://github.com/liorsion/socket.io-client.git#0cd60822b6aed9fc4538009b52b0b9d0ab1c2184",
-    "jquery": "~2.1.4"
+    "jquery": "~3.7.1"
   },
   "devDependencies": {
     "faker.js": "faker-js/faker#^4.1.0"

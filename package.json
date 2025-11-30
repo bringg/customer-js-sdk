@@ -13,7 +13,8 @@
     "karma-junit-reporter": "^2.0.1",
     "karma-mocha-reporter": "^2.2.1",
     "karma-notify-reporter": "^1.0.1",
-    "karma-phantomjs-launcher": "^1.0.2"
+    "karma-phantomjs-launcher": "^1.0.2",
+    "socket.io-client": "^4.8.3"
   },
   "engines": {
     "node": ">=18.0.0"
