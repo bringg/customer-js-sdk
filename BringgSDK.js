@@ -1170,10 +1170,6 @@ var BringgSDK = (function () {
     }, animationInterval);
   }
 
-  function onETACalculated(response, status) {
-
-  }
-
   function calculateETA(originLat, originLng, destLat, destLng, destAddress, onETACalculatedCallback) {
     if (!watchingDriver) {
       return;
@@ -1573,29 +1569,9 @@ var BringgSDK = (function () {
     }
   }
 
-  function guid() {
-    function s4() {
-      return Math.floor((1 + Math.random()) * 0x10000)
-        .toString(16)
-        .substring(1);
-    }
-
-    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-      s4() + '-' + s4() + s4() + s4();
-  }
-
   function _isSafari() {
     var ua = navigator.userAgent.toLowerCase();
     return (ua.indexOf('safari') !== -1 && !ua.indexOf('chrome') > -1);
-  }
-
-  function dataURItoBlob(dataURI) {
-    var binary = atob(dataURI.split(',')[1]);
-    var array = [];
-    for (var i = 0; i < binary.length; i++) {
-      array.push(binary.charCodeAt(i));
-    }
-    return new Blob([new Uint8Array(array)], {type: 'image/jpeg'});
   }
 
   function _loadScript(url, callback) {
