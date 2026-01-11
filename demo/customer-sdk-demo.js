@@ -93,7 +93,7 @@ function addToLogContainer(value) {
 }
 
 function onLoad() {
-  $("#requestPhone").click(function () {
+  $("#requestPhone").on("click", function () {
     var order_uuid = $("#order_uuid").val();
     var share_uuid = $("#share_uuid").val();
 
@@ -113,7 +113,7 @@ function onLoad() {
     });
   });
 
-  $("#connectButton").click(function () {
+  $("#connectButton").on("click", function () {
     // example for setting callbacks directly
     BringgSDK.setLocationUpdateCb(locationUpdateCb);
     BringgSDK.setETAUpdateCb(etaUpdateCb);
@@ -182,4 +182,3 @@ function resizeMapByMarkers() {
 
   map.setCenter(latlngbounds.getCenter());
 }
-

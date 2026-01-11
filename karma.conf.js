@@ -22,8 +22,10 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
       'bower_components/jquery/dist/jquery.min.js',
-      'bower_components/socket.io-client/socket.io.js',
       'bower_components/faker.js/build/build/faker.js',
+
+      // Loading socket.io as dev dependency for the tests. On real usage will use cdn.
+      'node_modules/socket.io-client/dist/socket.io.min.js',
 
       'BringgSDK.js',
       'BringgSDK.spec.js'
